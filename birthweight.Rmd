@@ -1,0 +1,142 @@
+---
+title: "Birthweight"
+author: "Emanuele Aliverti and Tommaso Rigon"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Birthweight
+
+```{r simulation}
+## Replicate simulations from Kosmidis et al (2020) <doi:10.1007/s11222-019-09860-6
+rm(list = ls())
+library(brglm2)
+library(detectseparation)
+library(MASS)
+library(knitr)
+
+## PREPARE THE DATASET
+bwt <- with(birthwt, {
+  age <- age
+  racewhite <- ifelse(race == 1, 1, 0)
+  smoke <- smoke
+  ptl <- ifelse(ptl > 0, 1, 0)
+  ptd <- factor(ptl > 0)
+  ht <- ht
+  loglwt <- log(lwt)
+  data.frame(normwt = 1 - low, age, racewhite, smoke, ptl, ht, loglwt, ftv)
+})
+bwt <- subset(bwt, subset = (ftv == 0), select = -c(ftv))
+
+## ESTIMATES
+X <- model.matrix(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, data = bwt)
+p <- ncol(X)
+n <- m <- nrow(X)
+ybar <- mean(bwt$normwt)
+y_clogg <- p / (p + m) * ybar + m / (p + m) * bwt$normwt
+y_dy <- p / (p + m) * 0.5 + m / (p + m) * bwt$normwt
+
+ml_fit <- glm(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+br_fit <- update(ml_fit, method = "brglmFit", type = "AS_mean", data = bwt)
+bc_fit <- update(ml_fit, method = "brglmFit", type = "correction", data = bwt)
+mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = bwt)
+sep_fit <- update(ml_fit, method = "detect_separation")
+clogg_fit <- glm(y_clogg ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+dy_fit <- glm(y_dy ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+
+estimates <- rbind(coef(ml_fit), coef(br_fit), coef(mbr_fit), coef(clogg_fit), coef(dy_fit))
+rownames(estimates) <- c("Maximum likelihood", "Firth (1993)", "Kenne Pagui (2017)", "Clogg (1991)", "Diaconis & Ylvisaker")
+kable(estimates, digits = 3)
+
+# SIMULATION STUDY ON 10.000 REPLICATES
+
+## Select a seed
+set.seed(1991)
+
+## Simulated response variable
+Nsim <- 10000
+simdata <- simulate(ml_fit, nsim = Nsim)
+beta <- coef(ml_fit)
+
+ml <- br <- mbr <- clogg <- dy <- ml_se <- br_se <- clogg_se <- mbr_se <- dy_se <- separation <- matrix(NA, nrow = Nsim, ncol = length(beta))
+
+# BEGIN THE SIMULATION STUDY
+for (i in 1:Nsim) {
+  current_data <- within(bwt, {normwt <- simdata[[i]]})
+
+  if (i %% 100 == 0) print(i)
+  ybar <- mean(current_data$normwt)
+  y_clogg <- p / (p + m) * ybar + m / (p + m) * current_data$normwt
+  y_dy <- p / (p + m) * 0.5 + m / (p + m) * current_data$normwt
+  
+  ml_fit <- glm(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = current_data)
+  br_fit <- update(ml_fit, method = "brglmFit", type = "AS_mean", data = current_data)
+  mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = current_data)
+  sep_fit <- update(ml_fit, method = "detect_separation")
+  clogg_fit <- glm(y_clogg ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = current_data)
+  dy_fit <- glm(y_dy ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = current_data)
+  
+  # Summaries
+  sum_ml <- summary(ml_fit)
+  sum_brmean <- summary(br_fit)
+  sum_clogg <- summary(clogg_fit)
+  sum_brmedian <- summary(mbr_fit)
+  sum_dy <- summary(dy_fit)
+
+  # Estimates & std
+  ml[i, ] <- sum_ml$coef[, 1]
+  ml_se[i, ] <- sum_ml$coef[, 2]
+
+  br[i, ] <- sum_brmean$coef[, 1]
+  br_se[i, ] <- sum_brmean$coef[, 2]
+
+  clogg[i, ] <- sum_clogg$coef[, 1]
+  clogg_se[i, ] <- sum_clogg$coef[, 2]
+
+  mbr[i, ] <- sum_brmedian$coef[, 1]
+  mbr_se[i, ] <- sum_brmedian$coef[, 2]
+
+  dy[i, ] <- sum_dy$coef[, 1]
+  dy_se[i, ] <- sum_dy$coef[, 2]
+
+  separation[i, ] <- sep_fit$coef
+}
+
+ml.inc <- apply(separation, 1, function(b) all(b == 0))
+
+## BIAS in beta parameterization
+bias.beta <- data.frame(
+  ml = colMeans(ml[ml.inc, ]),
+  br = colMeans(br),
+  mbr = colMeans(mbr),
+  clogg = colMeans(clogg),
+  dy = colMeans(dy)
+) - beta
+
+## MSE in beta parameterization
+mse.beta <- data.frame(
+  ml = rowMeans((t(ml[ml.inc, ]) - beta)^2),
+  br = rowMeans((t(br) - beta)^2),
+  mbr = rowMeans((t(mbr) - beta)^2),
+  clogg = rowMeans((t(clogg) - beta)^2),
+  dy = rowMeans((t(dy) - beta)^2)
+)
+
+## MAE in beta parameterization
+mae.beta <- data.frame(
+  ml = rowMeans(abs(t(ml[ml.inc, ]) - beta)),
+  br = rowMeans(abs(t(br) - beta)),
+  mbr = rowMeans(abs(t(mbr) - beta)),
+  clogg = rowMeans(abs(t(clogg) - beta)),
+  dy = rowMeans(abs(t(dy) - beta))
+)
+
+colnames(bias.beta) <- colnames(mse.beta) <- colnames(mae.beta) <- rownames(estimates)
+
+kable(t(bias.beta), digits = 2)
+kable(t(sqrt(mse.beta)), digits = 2)
+kable(t(mae.beta), digits = 2)
+```
