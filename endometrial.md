@@ -18,9 +18,9 @@ endometrial$HG_DY <- p / (p + m) * 0.5 + m / (p + m) * endometrial$HG
 # MLE ESTIMATE
 fit_mle <- glm(HG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
 beta_mle <- coef(fit_mle)
-sd_mle  <- summary(fit_mle)$coefficients[,2]
+sd_mle <- summary(fit_mle)$coefficients[, 2]
 
-# I manually set these parameters to + Inf 
+# I manually set these parameters to + Inf
 beta_mle[2] <- sd_mle[2] <- Inf
 
 # FIRTH (1993)
@@ -29,7 +29,7 @@ fit_firth <- glm(HG ~ NV + PI + EH,
   method = "brglmFit", type = "AS_mean"
 )
 beta_firth <- coef(fit_firth)
-sd_firth  <- summary(fit_firth)$coefficients[,2]
+sd_firth <- summary(fit_firth)$coefficients[, 2]
 
 # KENNE PAGUI ET AL. (2017)
 fit_kp <- glm(HG ~ NV + PI + EH,
@@ -37,7 +37,7 @@ fit_kp <- glm(HG ~ NV + PI + EH,
   method = "brglmFit", type = "AS_median"
 )
 beta_kp <- coef(fit_kp)
-sd_kp  <- summary(fit_kp)$coefficients[,2]
+sd_kp <- summary(fit_kp)$coefficients[, 2]
 
 # CLOGG ET AL. (1991)
 fit_clogg <- glm(HG_CLOGG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
@@ -47,7 +47,7 @@ fit_clogg <- glm(HG_CLOGG ~ NV + PI + EH, data = endometrial, family = binomial(
 
 ``` r
 beta_clogg <- coef(fit_clogg)
-sd_clogg  <- summary(fit_clogg)$coefficients[,2]
+sd_clogg <- summary(fit_clogg)$coefficients[, 2]
 
 
 # DIACONIS & YLVISAKER
@@ -58,7 +58,7 @@ fit_dy <- glm(HG_DY ~ NV + PI + EH, data = endometrial, family = binomial("logit
 
 ``` r
 beta_dy <- coef(fit_dy)
-sd_dy  <- summary(fit_dy)$coefficients[,2]
+sd_dy <- summary(fit_dy)$coefficients[, 2]
 
 estimates <- rbind(beta_mle, beta_firth, beta_kp, beta_clogg, beta_dy)
 std_errors <- rbind(sd_mle, sd_firth, sd_kp, sd_clogg, sd_dy)
