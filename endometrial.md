@@ -1,4 +1,4 @@
-## R Markdown
+## Endometrial cancer study
 
     library(brglm2)
     library(knitr)
