@@ -1,6 +1,7 @@
 ---
 title: "Endometrial cancer study"
 author: "Emanuele Aliverti and Tommaso Rigon"
+bibliography: ["../biblio.bib"]
 output: html_document
 ---
 
@@ -9,14 +10,21 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Endometrial cancer study
+The study is illustrated in [@Heinze2002]
 
+We start by cleaning the enviroment and load the data, available within the package `brglm2`
 ```{r endometrial}
-library(brglm2)
 library(knitr)
-
 rm(list = ls())
+library(brglm2)
 data(endometrial)
+```
 
+As illustrared in Section 1 of the article, our approach relies on a penalized-likelihood
+obtained replacing the Binomial observations via pseudo-counts. We construct such quantities
+in the column `HG_DY`, for the approach outlined in [@Clogg1991].
+
+```{r data}
 # DATA
 y <- endometrial$HG
 X <- model.matrix(HG ~ NV + PI + EH, data = endometrial)
@@ -24,7 +32,11 @@ p <- ncol(X)
 m <- nrow(X)
 endometrial$HG_CLOGG <- p / (p + m) * mean(endometrial$HG) + m / (p + m) * endometrial$HG
 endometrial$HG_DY <- p / (p + m) * 0.5 + m / (p + m) * endometrial$HG
+```
+## Maximum-likelihood
 
+This is further cofirmed via the function `detect`, available in the package `brglm2`.
+```{r mle}
 # MLE ESTIMATE
 fit_mle <- glm(HG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
 beta_mle <- coef(fit_mle)
@@ -32,7 +44,8 @@ sd_mle <- summary(fit_mle)$coefficients[, 2]
 
 # I manually set these parameters to + Inf
 beta_mle[2] <- sd_mle[2] <- Inf
-
+```
+```{r bias correction}
 # FIRTH (1993)
 fit_firth <- glm(HG ~ NV + PI + EH,
   data = endometrial, family = binomial("logit"),
