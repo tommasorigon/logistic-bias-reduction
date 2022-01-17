@@ -1,0 +1,58 @@
+---
+title: "high-dimensional"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+set.seed(1)
+n = 2000
+p = 400
+
+SS = matrix(0.2,p,p)
+diag(SS) = 1
+
+X = matrix(rnorm(n*p),n,p) %*% chol(SS)
+betas = runif(p)
+y = rbinom(n,1,prob = plogis(X %*% betas))
+```
+
+
+
+```{r setup, include=FALSE}
+library(brglm2)
+m <- nrow(X)
+y_clogg <- p / (p + m) * mean(y) + m / (p + m) * y
+y_dy <- p / (p + m) * 0.5 + m / (p + m) * y
+
+# MLE ESTIMATE
+t0 = Sys.time()
+fit_mle <- glm(y ~ -1 + X, family = binomial("logit"),control = glm.control(maxit = 500))
+t1 = Sys.time()
+elapsed_mle = t1 - t0
+beta_mle <- coef(fit_mle)
+sd_mle <- summary(fit_mle)$coefficients[, 2]
+
+t0 = Sys.time()
+fit_mle_fast <- logit_NR(y = y, X = X, maxiter = 500)
+t1 = Sys.time()
+elapsed_mle_fast = t1 - t0
+
+
+# FIRTH (1993)
+t0 = Sys.time()
+fit_firth <- glm(y ~ -1 + X,
+   family = binomial("logit"),
+  method = "brglmFit", type = "AS_mean",control = brglmControl(maxit=500, trace = T)
+)
+t1 = Sys.time()
+beta_firth <- coef(fit_firth)
+sd_firth <- summary(fit_firth)$coefficients[, 2]
+elapsed_firth = t1-t0
+# KENNE PAGUI ET AL. (2017)
+fit_kp <- glm(y ~ -1 + X,
+ family = binomial("logit"),
+  method = "brglmFit", type = "AS_median"
+)
+beta_kp <- coef(fit_kp)
+sd_kp <- summary(fit_kp)$coefficients[, 2]
+```

@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+# compiled files
+.html
