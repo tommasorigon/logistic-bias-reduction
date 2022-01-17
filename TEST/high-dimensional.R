@@ -1,6 +1,6 @@
 set.seed(1)
-n <- 1000
-p <- 100
+n <- 2000
+p <- 400
 
 SS <- matrix(0.2, p - 1, p - 1)
 diag(SS) <- 1
@@ -22,17 +22,12 @@ elapsed_dy <- t1 - t0
 beta_dy <- coef(fit_dy)
 sd_dy <- summary(fit_dy)$coefficients[, 2]
 
-# H20 estimate
-library(h2o)
-h2o.init()
-
-dataset <- as.h2o(data.frame(y = y, X = X[,-1]))
-fit_h2o <- h2o.glm(family = "binomial",
-                        x = colnames(dataset[,-1]),
-                        y = "y",
-                        training_frame = dataset,
-                        lambda = 0,
-                        compute_p_values = TRUE)
+library(RcppNumerical)
+t0 <- Sys.time()
+fit_fast_dy <- fastLR(X, y_dy)
+t1 <- Sys.time()
+elapsed_dy <- t1 - t0
+beta_fast_dy <- fit_fast_dy$coefficients
 
 
 # FIRTH (1993)
@@ -54,4 +49,4 @@ elapsed_firth <- t1 - t0
 # beta_kp <- coef(fit_kp)
 # sd_kp <- summary(fit_kp)$coefficients[, 2]
 
-c(elapsed_dy, elapsed_firth)
+c(elapsed_dy, elapsed_fast_dy, elapsed_firth)
