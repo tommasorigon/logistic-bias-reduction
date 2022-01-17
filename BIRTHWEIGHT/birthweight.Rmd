@@ -1,16 +1,28 @@
 ---
 title: "Birthweight"
-author: "Emanuele Aliverti and Tommaso Rigon"
+author: "Tommaso Rigon and Emanuele Aliverti"
 output: html_document
+bibliography: ["../biblio.bib"]
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Birthweight
+# Birthweight Study
 
-```{r simulation}
+This tutorial is devoted to replicating simulations from @Kosmidis2020, available in Table 2 of the article
+Data comprises $n = 100$ births and the binary outcome of interest is a dichotomization of 
+infant birthweight (low against normal). 
+A logistic regression is employed with covariates pertaining the mother, namely: age, race, smoking habitudes, history of premature labour and hypertension and
+the logarithm of the weight at birth of the mother.
+
+Similarly to the `endometrial` [case study](../ENDOMETRIAL/), we compare the DY regularizaion
+with @Firth1993, @Pagui2017 and @Clogg1991, relying on the package `brglm2` [@Kosmidis2021].
+
+Estimated regression coefficients are reported in the following table. Note that maximum-likelihood estimate
+exists finite in this example.
+```{r load, echo=F,warning=FALSE}
 ## Replicate simulations from Kosmidis et al (2020) <doi:10.1007/s11222-019-09860-6
 rm(list = ls())
 library(brglm2)
@@ -30,7 +42,9 @@ bwt <- with(birthwt, {
   data.frame(normwt = 1 - low, age, racewhite, smoke, ptl, ht, loglwt, ftv)
 })
 bwt <- subset(bwt, subset = (ftv == 0), select = -c(ftv))
+```
 
+```{r,echo=F}
 ## ESTIMATES
 X <- model.matrix(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, data = bwt)
 p <- ncol(X)
@@ -47,10 +61,17 @@ sep_fit <- update(ml_fit, method = "detect_separation")
 clogg_fit <- glm(y_clogg ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
 dy_fit <- glm(y_dy ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
 
-estimates <- rbind(coef(ml_fit), coef(br_fit), coef(mbr_fit), coef(clogg_fit), coef(dy_fit))
-rownames(estimates) <- c("Maximum likelihood", "Firth (1993)", "Kenne Pagui (2017)", "Clogg (1991)", "Diaconis & Ylvisaker")
-kable(estimates, digits = 3)
+estimates <- rbind(coef(ml_fit), coef(dy_fit), coef(br_fit), coef(mbr_fit), coef(clogg_fit))
+row.names(estimates) = c("MLE", "Diaconis-Ylvisaker", "@Firth1993", "@Pagui2017", "@Clogg1991")
+kable(estimates, digits = 3,format = "markdown", caption = "MLE and BR estimates")
+```
 
+We assess properties of estimates relying on a simulation study. $10000$ artificial
+dataset are generated from the maximum-likelihood estimates.
+Note that the simulation require rougly $3$ minutes on a 2020 Macbook Pro with M1 chip and R 4.1.1 linked with
+openblas. For convenience, we store the results in the file `birthweight_sim.RData`
+
+```{r simulation,echo=F, eval=F, cache=T,warning=F}
 # SIMULATION STUDY ON 10.000 REPLICATES
 
 ## Select a seed
@@ -133,10 +154,14 @@ mae.beta <- data.frame(
   clogg = rowMeans(abs(t(clogg) - beta)),
   dy = rowMeans(abs(t(dy) - beta))
 )
+save(list = c("bias.beta", "mse.beta", "mae.beta"),file = "birthweight_sim.RData")
+```
 
+```{r report,echo=F}
+load("birthweight_sim.RData")
 colnames(bias.beta) <- colnames(mse.beta) <- colnames(mae.beta) <- rownames(estimates)
 
-kable(t(bias.beta), digits = 2)
-kable(t(sqrt(mse.beta)), digits = 2)
-kable(t(mae.beta), digits = 2)
+kable(t(bias.beta*100), digits = 2, caption = "Bias x 100")
+kable(t(sqrt(mse.beta)), digits = 2, caption = "RMSE")
+kable(t(mae.beta), digits = 2, caption = "MAE")
 ```
