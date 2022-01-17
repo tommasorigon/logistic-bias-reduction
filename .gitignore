@@ -5,3 +5,4 @@
 # compiled files
 .html
 *_files/*
+*cache/*
