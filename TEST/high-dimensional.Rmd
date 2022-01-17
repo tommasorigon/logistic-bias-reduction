@@ -3,23 +3,10 @@ title: "high-dimensional"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-set.seed(1)
-n <- 10000
-p <- 1000
-
-SS <- matrix(0.2, p - 1, p - 1)
-diag(SS) <- 1
-
-X <- cbind(1, matrix(rnorm(n * (p - 1)), n, p - 1) %*% chol(SS))
-betas <- runif(p)
-y <- rbinom(n, 1, prob = plogis(X %*% betas))
-```
-
 
 # Example 1 
 
-```{r setup, include=FALSE}
+```{r setup1, include=FALSE}
 set.seed(1)
 n <- 500
 p <- 100
