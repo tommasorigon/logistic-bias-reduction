@@ -4,3 +4,4 @@
 .Ruserdata
 # compiled files
 .html
+*_files/*
