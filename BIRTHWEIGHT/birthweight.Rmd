@@ -160,7 +160,7 @@ save(list = c("bias.beta", "mse.beta", "mae.beta"),file = "birthweight_sim.RData
 
 ```{r report,echo=F}
 load("birthweight_sim.RData")
-colnames(bias.beta) <- colnames(mse.beta) <- colnames(mae.beta) <- rownames(estimates)
+colnames(bias.beta) <- colnames(mse.beta) <- colnames(mae.beta) <-  c("MLE",  "@Firth1993", "@Pagui2017", "@Clogg1991", "Diaconis-Ylvisaker")
 ```
 ## Bias
 
