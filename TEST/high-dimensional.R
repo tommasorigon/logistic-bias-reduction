@@ -1,6 +1,6 @@
 set.seed(1)
-n <- 2000
-p <- 400
+n <- 5000
+p <- 1000
 
 SS <- matrix(0.2, p - 1, p - 1)
 diag(SS) <- 1
@@ -41,15 +41,15 @@ beta_firth <- coef(fit_firth)
 sd_firth <- summary(fit_firth)$coefficients[, 2]
 elapsed_firth <- t1 - t0
 
-# KENNE PAGUI ET AL. (2017)
-t0 <- Sys.time()
-fit_kp <- glm(y ~ -1 + X,
-  family = binomial("logit"),
-  method = "brglmFit", type = "AS_median"
-)
-t1 <- Sys.time()
-beta_kp <- coef(fit_kp)
-elapsed_kp <- t1 - t0
+# # KENNE PAGUI ET AL. (2017)
+# t0 <- Sys.time()
+# fit_kp <- glm(y ~ -1 + X,
+#   family = binomial("logit"),
+#   method = "brglmFit", type = "AS_median"
+# )
+# t1 <- Sys.time()
+# beta_kp <- coef(fit_kp)
+# elapsed_kp <- t1 - t0
 
 
 c(elapsed_dy, elapsed_fast_dy, elapsed_firth, elapsed_kp)
