@@ -68,8 +68,9 @@ kable(estimates, digits = 3,format = "markdown", caption = "MLE and BR estimates
 
 We assess properties of estimates relying on a simulation study. $10000$ artificial
 dataset are generated from the maximum-likelihood estimates.
-Note that the simulation require rougly $3$ minutes on a 2020 Macbook Pro with M1 chip and R 4.1.1 linked with
-openblas. For convenience, we store the results in the file `birthweight_sim.RData`
+Note that the simulation require rougly $3$ minutes on a 2020 Macbook Pro with M1 processor 
+(`aarch64-apple-darwin20`)  running R 4.1.1 linked with `openblas`. 
+For convenience, we store the results in the file `birthweight_sim.RData`, provided within this folder.
 
 ```{r simulation,echo=F, eval=F, cache=T,warning=F}
 # SIMULATION STUDY ON 10.000 REPLICATES
@@ -88,7 +89,7 @@ ml <- br <- mbr <- clogg <- dy <- ml_se <- br_se <- clogg_se <- mbr_se <- dy_se 
 for (i in 1:Nsim) {
   current_data <- within(bwt, {normwt <- simdata[[i]]})
 
-  if (i %% 100 == 0) print(i)
+  # if (i %% 100 == 0) print(i)
   ybar <- mean(current_data$normwt)
   y_clogg <- p / (p + m) * ybar + m / (p + m) * current_data$normwt
   y_dy <- p / (p + m) * 0.5 + m / (p + m) * current_data$normwt
@@ -160,8 +161,17 @@ save(list = c("bias.beta", "mse.beta", "mae.beta"),file = "birthweight_sim.RData
 ```{r report,echo=F}
 load("birthweight_sim.RData")
 colnames(bias.beta) <- colnames(mse.beta) <- colnames(mae.beta) <- rownames(estimates)
-
-kable(t(bias.beta*100), digits = 2, caption = "Bias x 100")
-kable(t(sqrt(mse.beta)), digits = 2, caption = "RMSE")
-kable(t(mae.beta), digits = 2, caption = "MAE")
 ```
+## Bias
+
+```{r bias,echo=F}
+kable(t(bias.beta*100), digits = 2, caption = "Bias x 100")
+```
+
+## Rmse
+
+```{r rmse,echo=F}
+kable(t(sqrt(mse.beta)), digits = 2, caption = "RMSE")
+```
+
+# References
