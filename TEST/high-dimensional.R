@@ -52,4 +52,4 @@ elapsed_firth <- t1 - t0
 # elapsed_kp <- t1 - t0
 
 
-c(elapsed_dy, elapsed_fast_dy, elapsed_firth, elapsed_kp)
+c(elapsed_dy, elapsed_fast_dy, elapsed_firth)
