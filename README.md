@@ -1,2 +1,6 @@
 # Bias reduction methods for logistic regression
-Bias reduction techniques for logistic regression models
+This repository is associated with the article "Rigon, Aliverti (2022). Bias reduction techniques for logistic regression models" [link](), and contains code implementing bias-reduction via
+Diaconis-Ylvisaker conjugate prior [file]() and tutorials reproducing the results of the article
+
+- [ENDOMETRIAL](./ENDOMETRIAL) focuses on the `endometrial` dataset studied in Heinze and Schemper (2002, Stat. in Med.) and contains code to reproduce results from Secion 4.1 of the paper
+- [BIRTHWEIGHT](./BIRTHWEIGHT) focuses on the `birthweight` dataset available in the `MASS` pacakge, and contains code to reproduce results from Secion 4.2 of the paper. 
