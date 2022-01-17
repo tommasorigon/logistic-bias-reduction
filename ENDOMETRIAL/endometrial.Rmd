@@ -1,6 +1,6 @@
 ---
 title: "Endometrial cancer study"
-author: "Emanuele Aliverti and Tommaso Rigon"
+author: "Tommaso Rigon and Emanuele Aliverti"
 bibliography: ["../biblio.bib"]
 output: html_document
 ---
@@ -10,71 +10,110 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Endometrial cancer study
-The study is illustrated in [@Heinze2002]
+The endometrial cancer study is illustrated in @Heinze2002, and focuses on $n = 79$ patients 
+to evaluate the relationship between the histology of the endometrium (low against high), 
+and three risk factors: neovasculation, pulsatility index of arteria uterina, and endometrium height. 
+As shown in @Heinze2002, maximum likelihood for the coefficient $\beta_2$ (neovasculation) does not exist.
 
-We start by cleaning the enviroment and load the data, available within the package `brglm2`
-```{r endometrial}
-library(knitr)
+```{r endometrial,echo=F}
 rm(list = ls())
-library(brglm2)
-data(endometrial)
+library(knitr)
+library(jtools)
 ```
 
-As illustrared in Section 1 of the article, our approach relies on a penalized-likelihood
-obtained replacing the Binomial observations via pseudo-counts. We construct such quantities
-in the column `HG_DY`, for the approach outlined in [@Clogg1991].
+```{r mlefit}
+library(brglm2)
+data(endometrial)
+fit_mle <- glm(HG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
+```
+
+```{r mle,echo=F}
+print(summ(fit_mle, model.info = F, model.fit = F,confint = F))
+beta_mle <- coef(fit_mle)
+sd_mle <- summary(fit_mle)$coefficients[, 2]
+# I manually set these parameters to + Inf
+beta_mle[2] <- sd_mle[2] <- Inf
+```
+<!-- This phenomenon is well known as separation, and can be further confirmed via the package `detectseparation` -->
+
+<!-- ```{r sep,echo=T} -->
+<!-- detectseparation::detect_separation(x = model.matrix(fit_mle),y = fit_mle$y,family = binomial()) -->
+<!-- ``` -->
+
+## Regularization and bias correction 
+As illustrated in Section 1 of the article, our approach relies on a Diaconis-Ylvisaker conjugate prior with carefully chosen hyperparameters. 
+The resulting penalized likelihood can be expressed as a genuine Binomial likelihood, obtained replacing the Binomial observations via pseudo-counts. 
+We construct such quantities in the variable `HG_DY`.
 
 ```{r data}
-# DATA
 y <- endometrial$HG
 X <- model.matrix(HG ~ NV + PI + EH, data = endometrial)
 p <- ncol(X)
 m <- nrow(X)
-endometrial$HG_CLOGG <- p / (p + m) * mean(endometrial$HG) + m / (p + m) * endometrial$HG
 endometrial$HG_DY <- p / (p + m) * 0.5 + m / (p + m) * endometrial$HG
 ```
-## Maximum-likelihood
 
-This is further cofirmed via the function `detect`, available in the package `brglm2`.
-```{r mle}
-# MLE ESTIMATE
-fit_mle <- glm(HG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
-beta_mle <- coef(fit_mle)
-sd_mle <- summary(fit_mle)$coefficients[, 2]
+Our method can be estimated directly via `glm`, or other more efficient implementations for 
+logistic regression models (refer to [high-dimensional](../TEST) for further examples in higher dimensions). 
+Note that pseudo counts are not necessary integers, and this might prompt a warning when `glm` is called with `binomial` family.
+Such warnings can be avoided relying on the `quasi` family with link and variance function corresponding
+to binomial likelihood. In both cases, penalized likelihood optimization provide finite values for all coefficients.
 
-# I manually set these parameters to + Inf
-beta_mle[2] <- sd_mle[2] <- Inf
+```{r dy,warning=FALSE}
+fit_dy <- glm(HG_DY ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
+# Avoid warnings
+# fit_dy_now <- glm(HG_DY ~ NV + PI + EH, data = endometrial, family = quasi(link = "logit",variance = "mu(1-mu)"))
 ```
-```{r bias correction}
+
+```{r dy-out,echo=F}
+print(summ(fit_dy, model.info = F, model.fit = F,confint = F))
+```
+
+Table 1 in the paper compares the proposed approach with state-of-the art methods for 
+bias-reduction, such as @Firth1993 and @Pagui2017, conveniently implemented in the 
+R package `brglm2` [@brglm2]; refer also to @Kosmidis2020.
+We also compare the proposed method with the approach of [@Clogg1991], which also relies on a 
+conjugate prior specification inducing pseudo-counts and shrinking estimates toward the empirical 
+proportion.
+
+```{r bias correction,warning=FALSE}
 # FIRTH (1993)
 fit_firth <- glm(HG ~ NV + PI + EH,
   data = endometrial, family = binomial("logit"),
   method = "brglmFit", type = "AS_mean"
 )
-beta_firth <- coef(fit_firth)
-sd_firth <- summary(fit_firth)$coefficients[, 2]
 
 # KENNE PAGUI ET AL. (2017)
 fit_kp <- glm(HG ~ NV + PI + EH,
   data = endometrial, family = binomial("logit"),
   method = "brglmFit", type = "AS_median"
 )
-beta_kp <- coef(fit_kp)
-sd_kp <- summary(fit_kp)$coefficients[, 2]
 
 # CLOGG ET AL. (1991)
+endometrial$HG_CLOGG <- p / (p + m) * mean(endometrial$HG) + m / (p + m) * endometrial$HG
 fit_clogg <- glm(HG_CLOGG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
-beta_clogg <- coef(fit_clogg)
-sd_clogg <- summary(fit_clogg)$coefficients[, 2]
+```
 
 
-# DIACONIS & YLVISAKER
-fit_dy <- glm(HG_DY ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
+```{r collect, echo = F}
 beta_dy <- coef(fit_dy)
 sd_dy <- summary(fit_dy)$coefficients[, 2]
 
-estimates <- rbind(beta_mle, beta_firth, beta_kp, beta_clogg, beta_dy)
+beta_firth <- coef(fit_firth)
+sd_firth <- summary(fit_firth)$coefficients[, 2]
+
+beta_kp <- coef(fit_kp)
+sd_kp <- summary(fit_kp)$coefficients[, 2]
+
+beta_clogg <- coef(fit_clogg)
+sd_clogg <- summary(fit_clogg)$coefficients[, 2]
+
+estimates <- rbind(beta_mle, beta_dy, beta_firth, beta_kp, beta_clogg)
 std_errors <- rbind(sd_mle, sd_firth, sd_kp, sd_clogg, sd_dy)
-kable(estimates, digits = 3)
-kable(std_errors, digits = 3)
+results_table = matrix(paste0(round(estimates,3)," (", round(std_errors,3),")"),ncol = 4)
+row.names(results_table) = c("MLE", "Diaconis-Ylvisaker", "@Firth1993", "@Pagui2017", "@Clogg1991")
+kable(results_table, digits = 3,format = "markdown")
 ```
+
+# References
+

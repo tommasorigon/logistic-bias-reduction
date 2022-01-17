@@ -1,10 +1,10 @@
 %% This BibTeX bibliography file was created using BibDesk.
 %% https://bibdesk.sourceforge.io/
 
-%% Created for Tommaso Rigon at 2022-01-17 10:58:09 +0100 
+%% Created for Tommaso Rigon at 2022-01-17 10:58:09 +0100
 
 
-%% Saved with string encoding Unicode (UTF-8) 
+%% Saved with string encoding Unicode (UTF-8)
 
 
 @comment{jabref-meta: databaseType:bibtex;}
@@ -106,6 +106,14 @@
 	title = {{On the use of Cauchy prior distributions}},
 	volume = {13},
 	year = {2018}}
+
+  @Manual{brglm2,
+    title = {{brglm2}: Bias Reduction in Generalized Linear Models},
+    author = {Ioannis Kosmidis},
+    year = {2021},
+    note = {R package version 0.8.2},
+    url = {https://CRAN.R-project.org/package=brglm2},
+  }
 
 @article{Gelman2008,
 	abstract = {We propose a new prior distribution for classical (nonhierarchical) logistic regression models, constructed by first scaling all nonbinary variables to have mean 0 and standard deviation 0.5, and then placing independent Student-t prior distributions on the coefficients. As a default choice, we recommend the Cauchy distribution with center 0 and scale 2.5, which in the simplest setting is a longer-tailed version of the distribution attained by assuming one-half additional success and one-half additional failure in a logistic regression. Cross-validation on a corpus of datasets shows the Cauchy class of prior distributions to outperform existing implementations of Gaussian and Laplace priors. We recommend this prior distribution as a default choice for routine applied use. It has the advantage of always giving answers, even when there is complete separation in logistic regression (a common problem, even when the sample size is large and the number of predictors is small), and also automatically applying more shrinkage to higher-order interactions. This can be useful in routine data analysis as well as in automated procedures such as chained equations for missing-data imputation. We implement a procedure to fit generalized linear models in R with the Student-t prior distribution by incorporating an approximate EM algorithm into the usual iteratively weighted least squares. We illustrate with several applications, including a series of logistic regressions predicting voting preferences, a small bioassay experiment, and an imputation model for a public health data set. {\textcopyright} Institute of Mathematical Statistics.},
