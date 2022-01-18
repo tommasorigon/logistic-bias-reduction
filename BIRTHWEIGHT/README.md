@@ -6,7 +6,7 @@ available in the file*
 [birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd)),
 
 This tutorial is devoted to replicating simulations from Kosmidis, Kenne
-Pagui, and Sartori (2020), available in Table 2 of the article Data
+Pagui, and Sartori (2020), available in Table 2 of the article. Data
 comprises *n* = 100 births and the binary outcome of interest is a
 dichotomization of infant birthweight (low against normal).
 

@@ -15,9 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 Complete code associated with this page is available in the file* 
 [birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd)),
 
-This tutorial is devoted to replicating simulations from @Kosmidis2020, available in Table 2 of the article
-Data comprises $n = 100$ births and the binary outcome of interest is a dichotomization of 
-infant birthweight (low against normal). 
+This tutorial is devoted to replicating simulations from @Kosmidis2020, available in Table 2 of the article. Data comprises $n = 100$ births and the binary outcome of interest is a dichotomization of infant birthweight (low against normal). 
 
 ```{r load, echo=F,warning=FALSE,message=F}
 ## Replicate simulations from Kosmidis et al (2020) <doi:10.1007/s11222-019-09860-6
