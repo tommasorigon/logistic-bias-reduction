@@ -1,14 +1,15 @@
 rm(list = ls())
 set.seed(1991)
-x <- rnorm(5)
-X <- cbind(1, x)
+x1 <- rnorm(5)
+x2 <- rnorm(5)
+X <- cbind(x1, x2)
+X <- scale(X)
 
 dy_prior <- function(beta1, beta2, X, kappai = rep(0.5, NROW(X)), tau = NCOL(X) / NROW(X)) {
   nu <- X %*% c(beta1, beta2)
   out <- tau * (t(kappai) %*% nu - sum(log(1 + exp(nu))))
   return(exp(out))
 }
-dy_prior(0, 0, X = X)
 
 jeff_prior <- function(beta1, beta2, X) {
   pis <- plogis(X %*% c(beta1, beta2))
@@ -17,11 +18,16 @@ jeff_prior <- function(beta1, beta2, X) {
   return(exp(0.5* determinant(XtX, logarithm = TRUE)$modulus))
 }
 
-rr <- seq(-4, 4, l = 200)
-gr <- gr2 <- expand.grid(rr, rr)
+dgelman <- function(beta1, beta2) {
+  dcauchy(beta1, 0, scale = 2.5) * dcauchy(beta2, 0, 2.5)
+}
+
+rr <- seq(-8, 8, l = 200)
+gr <- gr2 <- gr3 <- expand.grid(rr, rr)
 
 gr$values <- apply(gr, 1, function(x) dy_prior(x[1], x[2], X = X))
 gr2$values <- apply(gr2, 1, function(x) jeff_prior(x[1], x[2], X = X))
+gr3$values <- apply(gr3, 1, function(x) dgelman(x[1], x[2]))
 
 # Normalizzazione stupida
 library(cubature)
@@ -34,12 +40,13 @@ gr2$values <- gr2$values / C_jeff
 
 gr$w <- "Diaconis & Ylvisaker"
 gr2$w <- "Jeffrey"
-gr_c <- rbind(gr, gr2)
+gr3$w <- "Cauchy (Gelman et al., 2008)"
+gr_c <- rbind(gr, gr2, gr3)
 
 library(ggplot2)
 library(metR)
 ggplot(gr_c) +
-  geom_contour(aes(x = Var1, y = Var2, z = values), bins = 12, col = "gray") +
+  geom_contour(aes(x = Var1, y = Var2, z = values), bins = 10, col = "gray") +
   geom_text_contour(aes(x = Var1, y = Var2, z = values)) +
   facet_wrap(~w) +
   theme_bw() + xlab(expression(beta[1])) + ylab(expression(beta[2]))
