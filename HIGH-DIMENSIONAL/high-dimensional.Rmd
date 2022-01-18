@@ -14,12 +14,12 @@ library(knitr)
 This tutorial is devoted to comparing the computational performance of the
 different corrections on a set of artificial data.
 We generate simulated data from a logistic regression model, with correlated covariates and 
-regression coefficient sampled from a uniform distribution.
+regression coefficient sampled from a standard gaussian distribution.
 
 ```{r setup1}
 set.seed(1991)
-n <- 500
-p <- 100
+n <- 50
+p <- 10
 
 SS <- matrix(0.2, p - 1, p - 1)
 diag(SS) <- 1
@@ -74,20 +74,22 @@ fit_kp <- glm(y ~ -1 + X,
 t1 <- Sys.time()
 elapsed_kp <- t1 - t0
 ```
+
 Timing comparison are provided in the following table.
+
 ```{r print-r,echo=F}
 tt = c(elapsed_dy, elapsed_fast_dy, elapsed_firth, elapsed_kp)
 names(tt) = c("DY", "DY - fast implementation", "@Firth1993", "@Pagui2017")
 kable(tt,digits = 3,format = "markdown")
 ```
 Computational costs notably increases with $n$ and $p$, keeping the same ratio $p/n=0.2$.
-For examples, with $n=5000$ and $p=1000$
+For examples, with $n=1000$ and $p=200$
 
 
 ```{r,eval=T,echo=F,warning=F}
 set.seed(1)
-n <- 5000
-p <- 1000
+n <- 100
+p <- 20
 
 SS <- matrix(0.2, p - 1, p - 1)
 diag(SS) <- 1
@@ -137,4 +139,5 @@ tt = c(elapsed_dy, elapsed_fast_dy, elapsed_firth, elapsed_kp)
 names(tt) = c("DY", "DY - fast implementation", "@Firth1993", "@Pagui2017")
 kable(tt,digits = 3,format = "markdown")
 ```
+
 # References

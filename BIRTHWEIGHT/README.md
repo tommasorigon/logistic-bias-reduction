@@ -1,134 +1,93 @@
-# Birthweight Study
+# Example 1
 
-*(This tutorial illustrates main results of the analysis in an
-easy-to-read format. Complete code associated with this page is
-available in the file*
-[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd)),
-
-This tutorial is devoted to replicating simulations from Kosmidis, Kenne
-Pagui, and Sartori (2020), available in Table 2 of the article Data
-comprises *n* = 100 births and the binary outcome of interest is a
-dichotomization of infant birthweight (low against normal).
+This tutorial is devoted to comparing the computational performance of
+the different corrections on a set of artificial data. We generate
+simulated data from a logistic regression model, with correlated
+covariates and regression coefficient sampled from a standard gaussian
+distribution.
 
 ``` r
-library(MASS)
-## PREPARE THE DATASET
-bwt <- with(birthwt, {
-  age <- age
-  racewhite <- ifelse(race == 1, 1, 0)
-  smoke <- smoke
-  ptl <- ifelse(ptl > 0, 1, 0)
-  ptd <- factor(ptl > 0)
-  ht <- ht
-  loglwt <- log(lwt)
-  data.frame(normwt = 1 - low, age, racewhite, smoke, ptl, ht, loglwt, ftv)
-})
-bwt <- subset(bwt, subset = (ftv == 0), select = -c(ftv))
+set.seed(1991)
+n <- 50
+p <- 10
+
+SS <- matrix(0.2, p - 1, p - 1)
+diag(SS) <- 1
+
+X <- cbind(1, matrix(rnorm(n * (p - 1)), n, p - 1) %*% chol(SS))
+betas <- runif(p)
+y <- rbinom(n, 1, prob = plogis(X %*% betas))
 ```
 
-A logistic regression is employed with covariates pertaining the mother,
-namely: age, race, smoking habitudes, history of premature labour and
-hypertension and the logarithm of the weight at birth of the mother.
-
-Similarly to the `endometrial` [case study](../ENDOMETRIAL/), we compare
-the proposed Diaconis-Ylvisaker regularization with Clogg et al. (1991),
-Firth (1993) and Kenne Pagui, Salvan, and Sartori (2017), relying on the
-package `brglm2` (Kosmidis and Firth 2021).
+We estimate different corrections and compare their empirical
+performance in terms of timing. Recalling that penalized likelihood
+optimization under the Diaconis-Ylvisaker conjugate prior induces a
+binomial likelihood with pseudo-counts, we can rely on different
+available optimization methods for logistic regression models. We found
+that quasi-Newton methods have better numerical performance; refer to
+Nocedal and Wright (2006) for additional details. A practical
+implementation for logistic regression optimization via L-BFGS is
+provided in the function `fastLR` available in the package
+`RcppNumerical`
 
 ``` r
-## ESTIMATES
-X <- model.matrix(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, data = bwt)
-p <- ncol(X)
-n <- m <- nrow(X)
+library(brglm2)
+m <- nrow(X)
+y_dy <- p / (p + m) * 0.5 + m / (p + m) * y
 
-# MLE
-ml_fit <- glm(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+# DY ESTIMATE
+t0 <- Sys.time()
+fit_dy <- glm(y_dy ~ X - 1, family = binomial("logit"))
+t1 <- Sys.time()
+elapsed_dy <- t1 - t0
 
-# DY
-y_dy <- p / (p + m) * 0.5 + m / (p + m) * bwt$normwt
-dy_fit <- glm(y_dy ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
-
-# CLOGG ET AL. (1991)
-ybar <- mean(bwt$normwt)
-y_clogg <- p / (p + m) * ybar + m / (p + m) * bwt$normwt
-clogg_fit <- glm(y_clogg ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+library(RcppNumerical)
+t0 <- Sys.time()
+fit_fast_dy <- fastLR(X, y_dy)
+t1 <- Sys.time()
+elapsed_fast_dy <- t1 - t0
 
 # FIRTH (1993)
-br_fit <- update(ml_fit, method = "brglmFit", type = "AS_mean", data = bwt)
+t0 <- Sys.time()
+fit_firth <- glm(y ~ -1 + X,
+  family = binomial("logit"),
+  method = "brglmFit", type = "AS_mean"
+)
+t1 <- Sys.time()
+elapsed_firth <- t1 - t0
 
 # KENNE PAGUI ET AL. (2017)
-mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = bwt)
+t0 <- Sys.time()
+fit_kp <- glm(y ~ -1 + X,
+  family = binomial("logit"),
+  method = "brglmFit", type = "AS_median"
+)
+t1 <- Sys.time()
+elapsed_kp <- t1 - t0
 ```
 
-Estimated regression coefficients are reported in the following table.
-Note that maximum-likelihood estimate exists finite in this example.
+Timing comparison are provided in the following table.
 
-|                                         |              |              |             |              |              |              |             |
-|:----------------------------------------|:-------------|:-------------|:------------|:-------------|:-------------|:-------------|:------------|
-| MLE                                     | -8.5 (5.83)  | -0.07 (0.05) | 0.69 (0.57) | -0.56 (0.58) | -1.6 (0.7)   | -1.21 (0.92) | 2.26 (1.25) |
-| Diaconis-Ylvisaker                      | -7.58 (5.66) | -0.06 (0.05) | 0.62 (0.55) | -0.51 (0.56) | -1.47 (0.68) | -1.09 (0.9)  | 2.03 (1.22) |
-| Clogg et al. (1991)                     | -7.67 (5.7)  | -0.06 (0.05) | 0.63 (0.55) | -0.52 (0.57) | -1.47 (0.68) | -1.1 (0.9)   | 2.06 (1.22) |
-| Firth (1993)                            | -7.4 (5.66)  | -0.06 (0.05) | 0.62 (0.55) | -0.53 (0.56) | -1.45 (0.68) | -1.1 (0.9)   | 2 (1.22)    |
-| Kenne Pagui, Salvan, and Sartori (2017) | -7.64 (5.72) | -0.06 (0.05) | 0.64 (0.56) | -0.54 (0.57) | -1.48 (0.68) | -1.13 (0.91) | 2.06 (1.23) |
+|                                         | x          |
+|:----------------------------------------|:-----------|
+| DY                                      | 0.004 secs |
+| DY - fast implementation                | 0.002 secs |
+| Firth (1993)                            | 0.009 secs |
+| Kenne Pagui, Salvan, and Sartori (2017) | 0.016 secs |
 
-MLE and BR estimates
+Computational costs notably increases with *n* and *p*, keeping the same
+ratio *p*/*n* = 0.2. For examples, with *n* = 1000 and *p* = 200
 
-We assess the properties of different approaches relying on a simulation
-study. Specifically, 10000 artificial datasets are generated from the
-maximum-likelihood estimates. The approaches illustrated on Table 1 are
-estimated for each replications, and we evaluate their performance in
-terms of bias and root mean squared error. Note that the simulation
-requires roughly 3 minutes on a 2020 Macbook Pro with M1 processor
-(`aarch64-apple-darwin20`) running R 4.1.1 linked with `openblas`.
-
-For convenience, we store the results in the file
-[`birthweight_sim.RData`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight_sim.RData),
-which can be loaded directly; refer to
-[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd),
-for a complete illustration of the code adapted from Kosmidis, Kenne
-Pagui, and Sartori (2020).
-
-``` r
-load("birthweight_sim.RData")
-```
-
-## Bias
-
-|                                         |       |       |       |       |       |       |      |
-|:----------------------------------------|------:|------:|------:|------:|------:|------:|-----:|
-| MLE                                     | -1.42 | -0.01 |  0.09 | -0.04 | -0.18 | -0.12 | 0.34 |
-| Diaconis-Ylvisaker                      | -0.08 |  0.00 | -0.01 |  0.03 | -0.01 |  0.03 | 0.00 |
-| Clogg et al. (1991)                     | -0.22 |  0.00 |  0.00 |  0.02 | -0.01 |  0.03 | 0.05 |
-| Firth (1993)                            | -0.08 |  0.00 |  0.01 |  0.00 |  0.00 |  0.00 | 0.02 |
-| Kenne Pagui, Salvan, and Sartori (2017) | -0.38 |  0.00 |  0.03 | -0.01 | -0.06 | -0.03 | 0.10 |
-
-Bias
-
-## Rmse
-
-|                                         |      |      |      |      |      |      |      |
-|:----------------------------------------|-----:|-----:|-----:|-----:|-----:|-----:|-----:|
-| MLE                                     | 6.88 | 0.06 | 0.64 | 0.65 | 0.81 | 1.12 | 1.49 |
-| Diaconis-Ylvisaker                      | 5.71 | 0.05 | 0.54 | 0.56 | 0.71 | 0.96 | 1.22 |
-| Clogg et al. (1991)                     | 5.83 | 0.05 | 0.55 | 0.57 | 0.70 | 0.97 | 1.25 |
-| Firth (1993)                            | 5.94 | 0.05 | 0.57 | 0.58 | 0.71 | 0.95 | 1.28 |
-| Kenne Pagui, Salvan, and Sartori (2017) | 6.12 | 0.06 | 0.58 | 0.60 | 0.78 | 1.01 | 1.31 |
-
-RMSE
+|                                         | x          |
+|:----------------------------------------|:-----------|
+| DY                                      | 0.005 secs |
+| DY - fast implementation                | 0.002 secs |
+| Firth (1993)                            | 0.009 secs |
+| Kenne Pagui, Salvan, and Sartori (2017) | 0.016 secs |
 
 # References
 
 <div id="refs" class="references csl-bib-body hanging-indent">
-
-<div id="ref-Clogg1991" class="csl-entry">
-
-Clogg, Clifford C., Donald B. Rubin, Nathaniel Schenker, Bradley
-Schultz, and Lynn Weidman. 1991. “<span class="nocase">Multiple
-imputation of industry and occupation codes in census public-use samples
-using Bayesian logistic regression</span>.” *J. Am. Statist. Assoc.* 86
-(413): 68–78. <https://doi.org/10.1080/01621459.1991.10475005>.
-
-</div>
 
 <div id="ref-Firth1993" class="csl-entry">
 
@@ -145,21 +104,10 @@ estimates</span>.” *Biometrika* 104 (4): 923–38.
 
 </div>
 
-<div id="ref-Kosmidis2021" class="csl-entry">
+<div id="ref-Nocedal2006" class="csl-entry">
 
-Kosmidis, Ioannis, and David Firth. 2021. “<span
-class="nocase">Jeffreys-prior penalty, finiteness and shrinkage in
-binomial-response generalized linear models</span>.” *Biometrika* 108
-(1): 71–82. <https://doi.org/10.1093/biomet/asaa052>.
-
-</div>
-
-<div id="ref-Kosmidis2020" class="csl-entry">
-
-Kosmidis, Ioannis, Euloge Clovis Kenne Pagui, and Nicola Sartori. 2020.
-“<span class="nocase">Mean and median bias reduction in generalized
-linear models</span>.” *Statist. Comp.* 30 (1): 43–59.
-<https://doi.org/10.1007/s11222-019-09860-6>.
+Nocedal, Jorge, and Stephen Wright. 2006. *Conjugate Gradient Methods*.
+New York, NY: Springer New York.
 
 </div>
 
