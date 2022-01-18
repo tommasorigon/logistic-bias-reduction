@@ -197,13 +197,14 @@ bias.beta = bias.beta[,ord]
 mse.beta = mse.beta[,ord]
 colnames(bias.beta) <- colnames(mse.beta) <-  c("MLE", "Diaconis-Ylvisaker", "@Clogg1991",  "@Firth1993", "@Pagui2017")
 ```
+
 ## Bias
 
 ```{r bias,echo=F}
 kable(t(bias.beta), digits = 2, caption = "Bias")
 ```
 
-## Rmse
+## RMSE
 
 ```{r rmse,echo=F}
 kable(t(sqrt(mse.beta)), digits = 2, caption = "RMSE")

@@ -49,14 +49,15 @@ gr_c <- rbind(gr, gr2, gr3)
 library(ggplot2)
 library(metR)
 p1 <- ggplot(gr_c) +
-  geom_contour(aes(x = Var1, y = Var2, z = values), bins = 20, col = "gray") +
-  geom_text_contour(aes(x = Var1, y = Var2, z = values), size = 3) +
+  geom_contour(aes(x = Var1, y = Var2, z = values), bins = 15, col = "gray") +
+  geom_text_contour(aes(x = Var1, y = Var2, z = values), size = 2, rotate = TRUE) +
   facet_wrap(~w) +
   theme_bw() + xlab(expression(beta[1])) + ylab(expression(beta[2]))
 p1
 ggsave("densities.eps", p1, width = 8, height = 3.5)
 
-ggplot(gr_c) +
-  geom_contour_filled(aes(x = Var1, y = Var2, z = values), bins = 30) +
+p2 <- ggplot(gr_c) +
+  geom_contour_filled(aes(x = Var1, y = Var2, z = values), bins = 25) +
   facet_wrap(~w) +
-  theme_bw() + xlab(expression(beta[1])) + ylab(expression(beta[2])) + theme(legend.position = "none")
+  theme_bw() + xlab(expression(beta[1])) + ylab(expression(beta[2])) + theme(legend.position = "none") #+ scale_fill_grey(start = 0.2, end = 0.8)
+p2
