@@ -1,6 +1,6 @@
 set.seed(1)
-n <- 5000
-p <- 1000
+n <- 1000
+p <- 100
 
 SS <- matrix(0.2, p - 1, p - 1)
 diag(SS) <- 1

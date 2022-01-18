@@ -1,4 +1,4 @@
-n_p = lapply(as.list(0:4), function(x) list(n=100 * (10)^x, p=10 * 10^x))
+n_p = lapply(as.list(c(1, 5, 10)), function(x) list(n=100 * (10)*x, p=10 * 10 * x))
 disp_string = "Starting with n=%s and p=%s\n"
 library(brglm2)
 library(fastglm)
