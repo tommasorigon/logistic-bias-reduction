@@ -74,8 +74,7 @@ br_fit <- update(ml_fit, method = "brglmFit", type = "AS_mean", data = bwt)
 mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = bwt)
 ```
 
-Estimated regression coefficients are reported in the following table. Note that maximum-likelihood estimate
-exists finite in this example.
+Estimated regression coefficients are reported in the following table. Note that maximum-likelihood estimate exists finite in this example.
 
 ```{r,echo=F,warning=FALSE}
 se <- function(x) summary(x)$coef[, "Std. Error"]
