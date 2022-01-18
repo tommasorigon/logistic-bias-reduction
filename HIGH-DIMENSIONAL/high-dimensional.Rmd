@@ -121,7 +121,6 @@ fit_firth <- glm(y ~ -1 + X,
   method = "brglmFit", type = "AS_mean"
 )
 t1 <- Sys.time()
-<<<<<<< Updated upstream
 elapsed_firth <- t1 - t0
 
 # KENNE PAGUI ET AL. (2017)
@@ -132,10 +131,6 @@ fit_kp <- glm(y ~ -1 + X,
 )
 t1 <- Sys.time()
 elapsed_kp <- t1 - t0
-=======
-beta_firth <- coef(fit_firth)
-
->>>>>>> Stashed changes
 ```
 
 ```{r print-r2,echo=F}
