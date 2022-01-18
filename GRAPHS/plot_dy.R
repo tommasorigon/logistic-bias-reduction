@@ -35,6 +35,9 @@ library(cubature)
 C_dy <- hcubature(function(x) dy_prior(x[1], x[2], X = X),c(-Inf,-Inf), c(Inf,Inf))$integral
 C_jeff <- hcubature(function(x) jeff_prior(x[1], x[2], X = X),rep(-Inf,2), rep(Inf, 2))$integral
 
+# Sanity check
+hcubature(function(x) dgelman(x[1], x[2]),rep(-Inf,2), rep(Inf, 2))$integral
+
 gr$values <- gr$values / C_dy
 gr2$values <- gr2$values / C_jeff
 
