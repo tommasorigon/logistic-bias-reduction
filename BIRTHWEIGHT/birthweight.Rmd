@@ -11,25 +11,24 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Birthweight Study
 
+*(This tutorial illustrates main results of the analysis in an easy-to-read format.
+Complete code associated with this page is available in the file* 
+[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd)),
+
 This tutorial is devoted to replicating simulations from @Kosmidis2020, available in Table 2 of the article
 Data comprises $n = 100$ births and the binary outcome of interest is a dichotomization of 
 infant birthweight (low against normal). 
-A logistic regression is employed with covariates pertaining the mother, namely: age, race, smoking habitudes, history of premature labour and hypertension and
-the logarithm of the weight at birth of the mother.
 
-Similarly to the `endometrial` [case study](../ENDOMETRIAL/), we compare the DY regularizaion
-with @Firth1993, @Pagui2017 and @Clogg1991, relying on the package `brglm2` [@Kosmidis2021].
-
-Estimated regression coefficients are reported in the following table. Note that maximum-likelihood estimate
-exists finite in this example.
 ```{r load, echo=F,warning=FALSE,message=F}
 ## Replicate simulations from Kosmidis et al (2020) <doi:10.1007/s11222-019-09860-6
 rm(list = ls())
 library(brglm2)
 library(detectseparation)
-library(MASS)
 library(knitr)
+```
 
+```{r clean, echo=T,warning=FALSE,message=F}
+library(MASS)
 ## PREPARE THE DATASET
 bwt <- with(birthwt, {
   age <- age
@@ -44,33 +43,57 @@ bwt <- with(birthwt, {
 bwt <- subset(bwt, subset = (ftv == 0), select = -c(ftv))
 ```
 
-```{r,echo=F,warning=FALSE}
+A logistic regression is employed with covariates pertaining the mother, namely: age, race, smoking habitudes, history of premature labour and hypertension and
+the logarithm of the weight at birth of the mother.
+
+Similarly to the `endometrial` [case study](../ENDOMETRIAL/), we compare the proposed
+Diaconis-Ylvisaker regularization with @Clogg1991, @Firth1993 and @Pagui2017, relying on the package `brglm2` [@Kosmidis2021].
+
+```{r,echo=T,warning=FALSE}
 ## ESTIMATES
 X <- model.matrix(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, data = bwt)
 p <- ncol(X)
 n <- m <- nrow(X)
-ybar <- mean(bwt$normwt)
-y_clogg <- p / (p + m) * ybar + m / (p + m) * bwt$normwt
-y_dy <- p / (p + m) * 0.5 + m / (p + m) * bwt$normwt
 
+# MLE
 ml_fit <- glm(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
-br_fit <- update(ml_fit, method = "brglmFit", type = "AS_mean", data = bwt)
-bc_fit <- update(ml_fit, method = "brglmFit", type = "correction", data = bwt)
-mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = bwt)
-sep_fit <- update(ml_fit, method = "detect_separation")
-clogg_fit <- glm(y_clogg ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+
+# DY
+y_dy <- p / (p + m) * 0.5 + m / (p + m) * bwt$normwt
 dy_fit <- glm(y_dy ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
 
-estimates <- rbind(coef(ml_fit), coef(dy_fit), coef(br_fit), coef(mbr_fit), coef(clogg_fit))
-row.names(estimates) = c("MLE", "Diaconis-Ylvisaker", "@Firth1993", "@Pagui2017", "@Clogg1991")
-kable(estimates, digits = 3,format = "markdown", caption = "MLE and BR estimates")
+# CLOGG ET AL. (1991)
+ybar <- mean(bwt$normwt)
+y_clogg <- p / (p + m) * ybar + m / (p + m) * bwt$normwt
+clogg_fit <- glm(y_clogg ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+
+# FIRTH (1993)
+br_fit <- update(ml_fit, method = "brglmFit", type = "AS_mean", data = bwt)
+
+# KENNE PAGUI ET AL. (2017)
+mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = bwt)
 ```
 
-We assess properties of estimates relying on a simulation study. $10000$ artificial
-dataset are generated from the maximum-likelihood estimates.
-Note that the simulation require rougly $3$ minutes on a 2020 Macbook Pro with M1 processor 
+Estimated regression coefficients are reported in the following table. Note that maximum-likelihood estimate
+exists finite in this example.
+
+```{r,echo=F,warning=FALSE}
+se = function(x) summary(x)$coef[,"Std. Error"]
+estimates <- rbind(coef(ml_fit), coef(dy_fit), coef(clogg_fit), coef(br_fit), coef(mbr_fit))
+std_errors <- rbind(se(ml_fit), se(dy_fit), se(clogg_fit), se(br_fit), se(mbr_fit))
+
+results_table = matrix(paste0(round(estimates,2)," (", round(std_errors,2),")"),ncol = p)
+
+row.names(results_table) = c("MLE", "Diaconis-Ylvisaker","@Clogg1991", "@Firth1993", "@Pagui2017")
+kable(results_table, digits = 3,format = "markdown", caption = "MLE and BR estimates")
+```
+
+We assess the properties of different approaches relying on a simulation study.
+Specifically, $10000$ artificial datasets are generated from the maximum-likelihood estimates.
+The approaches illustrated on Table 1 are estimated for each replications, and we evaluate their
+performance in terms of bias and root mean squared error.
+Note that the simulation requires roughly $3$ minutes on a 2020 Macbook Pro with M1 processor 
 (`aarch64-apple-darwin20`)  running R 4.1.1 linked with `openblas`. 
-For convenience, we store the results in the file `birthweight_sim.RData`, provided within this folder.
 
 ```{r simulation,echo=F, eval=F, cache=T,warning=F}
 # SIMULATION STUDY ON 10.000 REPLICATES
@@ -158,9 +181,21 @@ mae.beta <- data.frame(
 save(list = c("bias.beta", "mse.beta", "mae.beta"),file = "birthweight_sim.RData")
 ```
 
-```{r report,echo=F}
+For convenience, we store the results in the file 
+[`birthweight_sim.RData`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight_sim.RData),
+which can be loaded directly; refer to
+[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd),
+for a complete illustration of the code adapted from @Kosmidis2020.
+
+```{r report,echo=T,eval=T}
 load("birthweight_sim.RData")
-colnames(bias.beta) <- colnames(mse.beta) <- colnames(mae.beta) <-  c("MLE",  "@Firth1993", "@Pagui2017", "@Clogg1991", "Diaconis-Ylvisaker")
+```
+
+```{r reshalpe, echo=F}
+ord = c("ml", "dy", "clogg", "br", "mbr")
+bias.beta = bias.beta[,ord]
+mse.beta = mse.beta[,ord]
+colnames(bias.beta) <- colnames(mse.beta) <-  c("MLE", "Diaconis-Ylvisaker", "@Clogg1991",  "@Firth1993", "@Pagui2017")
 ```
 ## Bias
 

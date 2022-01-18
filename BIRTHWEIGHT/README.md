@@ -1,47 +1,106 @@
 # Birthweight Study
 
+*(This tutorial illustrates main results of the analysis in an
+easy-to-read format. Complete code associated with this page is
+available in the file*
+[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd)),
+
 This tutorial is devoted to replicating simulations from Kosmidis, Kenne
 Pagui, and Sartori (2020), available in Table 2 of the article Data
 comprises *n* = 100 births and the binary outcome of interest is a
-dichotomization of infant birthweight (low against normal). A logistic
-regression is employed with covariates pertaining the mother, namely:
-age, race, smoking habitudes, history of premature labour and
+dichotomization of infant birthweight (low against normal).
+
+``` r
+library(MASS)
+## PREPARE THE DATASET
+bwt <- with(birthwt, {
+  age <- age
+  racewhite <- ifelse(race == 1, 1, 0)
+  smoke <- smoke
+  ptl <- ifelse(ptl > 0, 1, 0)
+  ptd <- factor(ptl > 0)
+  ht <- ht
+  loglwt <- log(lwt)
+  data.frame(normwt = 1 - low, age, racewhite, smoke, ptl, ht, loglwt, ftv)
+})
+bwt <- subset(bwt, subset = (ftv == 0), select = -c(ftv))
+```
+
+A logistic regression is employed with covariates pertaining the mother,
+namely: age, race, smoking habitudes, history of premature labour and
 hypertension and the logarithm of the weight at birth of the mother.
 
 Similarly to the `endometrial` [case study](../ENDOMETRIAL/), we compare
-the DY regularizaion with Firth (1993), Kenne Pagui, Salvan, and Sartori
-(2017) and Clogg et al. (1991), relying on the package `brglm2`
-(Kosmidis and Firth 2021).
+the proposed Diaconis-Ylvisaker regularization with Clogg et al. (1991),
+Firth (1993) and Kenne Pagui, Salvan, and Sartori (2017), relying on the
+package `brglm2` (Kosmidis and Firth 2021).
+
+``` r
+## ESTIMATES
+X <- model.matrix(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, data = bwt)
+p <- ncol(X)
+n <- m <- nrow(X)
+
+# MLE
+ml_fit <- glm(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+
+# DY
+y_dy <- p / (p + m) * 0.5 + m / (p + m) * bwt$normwt
+dy_fit <- glm(y_dy ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+
+# CLOGG ET AL. (1991)
+ybar <- mean(bwt$normwt)
+y_clogg <- p / (p + m) * ybar + m / (p + m) * bwt$normwt
+clogg_fit <- glm(y_clogg ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = bwt)
+
+# FIRTH (1993)
+br_fit <- update(ml_fit, method = "brglmFit", type = "AS_mean", data = bwt)
+
+# KENNE PAGUI ET AL. (2017)
+mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = bwt)
+```
 
 Estimated regression coefficients are reported in the following table.
 Note that maximum-likelihood estimate exists finite in this example.
 
-|                                         | (Intercept) |    age | racewhite |  smoke |    ptl |     ht | loglwt |
-|:----------------------------------------|------------:|-------:|----------:|-------:|-------:|-------:|-------:|
-| MLE                                     |      -8.496 | -0.067 |     0.690 | -0.560 | -1.603 | -1.211 |  2.262 |
-| Diaconis-Ylvisaker                      |      -7.584 | -0.060 |     0.618 | -0.505 | -1.469 | -1.091 |  2.026 |
-| Firth (1993)                            |      -7.401 | -0.061 |     0.622 | -0.531 | -1.446 | -1.104 |  1.998 |
-| Kenne Pagui, Salvan, and Sartori (2017) |      -7.641 | -0.062 |     0.638 | -0.538 | -1.481 | -1.134 |  2.059 |
-| Clogg et al. (1991)                     |      -7.665 | -0.061 |     0.629 | -0.515 | -1.466 | -1.098 |  2.057 |
+|                                         |              |              |             |              |              |              |             |
+|:----------------------------------------|:-------------|:-------------|:------------|:-------------|:-------------|:-------------|:------------|
+| MLE                                     | -8.5 (5.83)  | -0.07 (0.05) | 0.69 (0.57) | -0.56 (0.58) | -1.6 (0.7)   | -1.21 (0.92) | 2.26 (1.25) |
+| Diaconis-Ylvisaker                      | -7.58 (5.66) | -0.06 (0.05) | 0.62 (0.55) | -0.51 (0.56) | -1.47 (0.68) | -1.09 (0.9)  | 2.03 (1.22) |
+| Clogg et al. (1991)                     | -7.67 (5.7)  | -0.06 (0.05) | 0.63 (0.55) | -0.52 (0.57) | -1.47 (0.68) | -1.1 (0.9)   | 2.06 (1.22) |
+| Firth (1993)                            | -7.4 (5.66)  | -0.06 (0.05) | 0.62 (0.55) | -0.53 (0.56) | -1.45 (0.68) | -1.1 (0.9)   | 2 (1.22)    |
+| Kenne Pagui, Salvan, and Sartori (2017) | -7.64 (5.72) | -0.06 (0.05) | 0.64 (0.56) | -0.54 (0.57) | -1.48 (0.68) | -1.13 (0.91) | 2.06 (1.23) |
 
 MLE and BR estimates
 
-We assess properties of estimates relying on a simulation study. 10000
-artificial dataset are generated from the maximum-likelihood estimates.
-Note that the simulation require rougly 3 minutes on a 2020 Macbook Pro
-with M1 processor (`aarch64-apple-darwin20`) running R 4.1.1 linked with
-`openblas`. For convenience, we store the results in the file
-`birthweight_sim.RData`, provided within this folder.
+We assess the properties of different approaches relying on a simulation
+study. Specifically, 10000 artificial datasets are generated from the
+maximum-likelihood estimates. The approaches illustrated on Table 1 are
+estimated for each replications, and we evaluate their performance in
+terms of bias and root mean squared error. Note that the simulation
+requires roughly 3 minutes on a 2020 Macbook Pro with M1 processor
+(`aarch64-apple-darwin20`) running R 4.1.1 linked with `openblas`.
+
+For convenience, we store the results in the file
+[`birthweight_sim.RData`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight_sim.RData),
+which can be loaded directly; refer to
+[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd),
+for a complete illustration of the code adapted from Kosmidis, Kenne
+Pagui, and Sartori (2020).
+
+``` r
+load("birthweight_sim.RData")
+```
 
 ## Bias
 
 |                                         |         |       |       |       |        |        |       |
 |:----------------------------------------|--------:|------:|------:|------:|-------:|-------:|------:|
 | MLE                                     | -141.56 | -0.79 |  8.90 | -3.61 | -18.04 | -12.20 | 34.13 |
+| Diaconis-Ylvisaker                      |   -8.13 |  0.07 | -1.09 |  3.04 |  -1.01 |   3.45 |  0.44 |
+| Clogg et al. (1991)                     |  -21.67 | -0.04 |  0.39 |  1.93 |  -0.78 |   2.92 |  4.85 |
 | Firth (1993)                            |   -8.28 | -0.13 |  0.75 | -0.39 |  -0.02 |  -0.04 |  2.19 |
 | Kenne Pagui, Salvan, and Sartori (2017) |  -38.16 | -0.21 |  2.79 | -1.20 |  -5.57 |  -3.27 |  9.63 |
-| Clogg et al. (1991)                     |  -21.67 | -0.04 |  0.39 |  1.93 |  -0.78 |   2.92 |  4.85 |
-| Diaconis-Ylvisaker                      |   -8.13 |  0.07 | -1.09 |  3.04 |  -1.01 |   3.45 |  0.44 |
 
 Bias x 100
 
@@ -50,10 +109,10 @@ Bias x 100
 |                                         |        |      |       |       |       |        |        |
 |:----------------------------------------|-------:|-----:|------:|------:|------:|-------:|-------:|
 | MLE                                     | 688.07 | 6.07 | 64.25 | 64.80 | 80.89 | 111.69 | 148.90 |
+| Diaconis-Ylvisaker                      | 571.31 | 5.21 | 54.19 | 55.93 | 71.34 |  96.24 | 122.42 |
+| Clogg et al. (1991)                     | 582.54 | 5.31 | 55.24 | 56.85 | 70.38 |  97.25 | 124.96 |
 | Firth (1993)                            | 594.48 | 5.41 | 56.79 | 57.97 | 71.45 |  94.65 | 127.78 |
 | Kenne Pagui, Salvan, and Sartori (2017) | 611.63 | 5.54 | 58.38 | 59.59 | 77.62 | 101.39 | 131.48 |
-| Clogg et al. (1991)                     | 582.54 | 5.31 | 55.24 | 56.85 | 70.38 |  97.25 | 124.96 |
-| Diaconis-Ylvisaker                      | 571.31 | 5.21 | 54.19 | 55.93 | 71.34 |  96.24 | 122.42 |
 
 RMSE x 100
 

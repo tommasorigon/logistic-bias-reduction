@@ -1,5 +1,10 @@
 ## Endometrial cancer study
 
+*(This tutorial illustrates main results of the analysis in an
+easy-to-read format. Complete code associated with this page is
+available in the file*
+[endometrial.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/ENDOMETRIAL/endometrial.Rmd)),
+
 The endometrial cancer study is illustrated in Heinze and Schemper
 (2002), and focuses on *n* = 79 patients to evaluate the relationship
 between the histology of the endometrium (low against high), and three
@@ -23,11 +28,6 @@ fit_mle <- glm(HG ~ NV + PI + EH, data = endometrial, family = binomial("logit")
     ## PI                  -0.04      0.04    -0.95   0.34
     ## EH                  -2.90      0.85    -3.43   0.00
     ## ---------------------------------------------------
-
-<!-- This phenomenon is well known as separation, and can be further confirmed via the package `detectseparation` -->
-<!-- ```{r sep,echo=T} -->
-<!-- detectseparation::detect_separation(x = model.matrix(fit_mle),y = fit_mle$y,family = binomial()) -->
-<!-- ``` -->
 
 ## Regularization and bias correction
 
@@ -82,6 +82,10 @@ specification inducing pseudo-counts and shrinking estimates toward the
 empirical proportion.
 
 ``` r
+# CLOGG ET AL. (1991)
+endometrial$HG_CLOGG <- p / (p + m) * mean(endometrial$HG) + m / (p + m) * endometrial$HG
+fit_clogg <- glm(HG_CLOGG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
+
 # FIRTH (1993)
 fit_firth <- glm(HG ~ NV + PI + EH,
   data = endometrial, family = binomial("logit"),
@@ -93,19 +97,18 @@ fit_kp <- glm(HG ~ NV + PI + EH,
   data = endometrial, family = binomial("logit"),
   method = "brglmFit", type = "AS_median"
 )
-
-# CLOGG ET AL. (1991)
-endometrial$HG_CLOGG <- p / (p + m) * mean(endometrial$HG) + m / (p + m) * endometrial$HG
-fit_clogg <- glm(HG_CLOGG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
 ```
 
 |                                         |               |               |                |                |
 |:----------------------------------------|:--------------|:--------------|:---------------|:---------------|
 | MLE                                     | 4.305 (1.637) | Inf (Inf)     | -0.042 (0.044) | -2.903 (0.846) |
-| Diaconis-Ylvisaker                      | 3.579 (1.489) | 3.431 (1.551) | -0.034 (0.04)  | -2.458 (0.776) |
-| Firth (1993)                            | 3.775 (1.552) | 2.929 (2.298) | -0.035 (0.042) | -2.604 (0.803) |
-| Kenne Pagui, Salvan, and Sartori (2017) | 3.969 (1.471) | 3.869 (1.722) | -0.039 (0.04)  | -2.708 (0.761) |
-| Clogg et al. (1991)                     | 3.622 (1.459) | 3.223 (1.893) | -0.034 (0.04)  | -2.511 (0.748) |
+| Diaconis-Ylvisaker                      | 3.579 (1.459) | 3.431 (1.893) | -0.034 (0.04)  | -2.458 (0.748) |
+| Clogg et al. (1991)                     | 3.622 (1.471) | 3.223 (1.722) | -0.034 (0.04)  | -2.511 (0.761) |
+| Firth (1993)                            | 3.775 (1.489) | 2.929 (1.551) | -0.035 (0.04)  | -2.604 (0.776) |
+| Kenne Pagui, Salvan, and Sartori (2017) | 3.969 (1.552) | 3.869 (2.298) | -0.039 (0.042) | -2.708 (0.803) |
+
+Table 1 of the paper: Estimated regression coefficients on the
+endometrial cancer study (and standard errors)
 
 # References
 

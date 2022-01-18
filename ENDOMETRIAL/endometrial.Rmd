@@ -10,6 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Endometrial cancer study
+
+*(This tutorial illustrates main results of the analysis in an easy-to-read format.
+Complete code associated with this page is available in the file* 
+[endometrial.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/ENDOMETRIAL/endometrial.Rmd)),
+
 The endometrial cancer study is illustrated in @Heinze2002, and focuses on $n = 79$ patients 
 to evaluate the relationship between the histology of the endometrium (low against high), 
 and three risk factors: neovasculation, pulsatility index of arteria uterina, and endometrium height. 
@@ -34,11 +39,7 @@ sd_mle <- summary(fit_mle)$coefficients[, 2]
 # I manually set these parameters to + Inf
 beta_mle[2] <- sd_mle[2] <- Inf
 ```
-<!-- This phenomenon is well known as separation, and can be further confirmed via the package `detectseparation` -->
 
-<!-- ```{r sep,echo=T} -->
-<!-- detectseparation::detect_separation(x = model.matrix(fit_mle),y = fit_mle$y,family = binomial()) -->
-<!-- ``` -->
 
 ## Regularization and bias correction 
 As illustrated in Section 1 of the article, our approach relies on a Diaconis-Ylvisaker conjugate prior with carefully chosen hyperparameters. 
@@ -77,6 +78,10 @@ conjugate prior specification inducing pseudo-counts and shrinking estimates tow
 proportion.
 
 ```{r bias correction,warning=FALSE}
+# CLOGG ET AL. (1991)
+endometrial$HG_CLOGG <- p / (p + m) * mean(endometrial$HG) + m / (p + m) * endometrial$HG
+fit_clogg <- glm(HG_CLOGG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
+
 # FIRTH (1993)
 fit_firth <- glm(HG ~ NV + PI + EH,
   data = endometrial, family = binomial("logit"),
@@ -88,10 +93,6 @@ fit_kp <- glm(HG ~ NV + PI + EH,
   data = endometrial, family = binomial("logit"),
   method = "brglmFit", type = "AS_median"
 )
-
-# CLOGG ET AL. (1991)
-endometrial$HG_CLOGG <- p / (p + m) * mean(endometrial$HG) + m / (p + m) * endometrial$HG
-fit_clogg <- glm(HG_CLOGG ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
 ```
 
 
@@ -108,11 +109,12 @@ sd_kp <- summary(fit_kp)$coefficients[, 2]
 beta_clogg <- coef(fit_clogg)
 sd_clogg <- summary(fit_clogg)$coefficients[, 2]
 
-estimates <- rbind(beta_mle, beta_dy, beta_firth, beta_kp, beta_clogg)
-std_errors <- rbind(sd_mle, sd_firth, sd_kp, sd_clogg, sd_dy)
+estimates <- rbind(beta_mle, beta_dy, beta_clogg, beta_firth, beta_kp)
+std_errors <- rbind(sd_mle, sd_dy, sd_clogg, sd_firth, sd_kp)
 results_table = matrix(paste0(round(estimates,3)," (", round(std_errors,3),")"),ncol = 4)
-row.names(results_table) = c("MLE", "Diaconis-Ylvisaker", "@Firth1993", "@Pagui2017", "@Clogg1991")
-kable(results_table, digits = 3,format = "markdown")
+row.names(results_table) = c("MLE", "Diaconis-Ylvisaker", "@Clogg1991", "@Firth1993", "@Pagui2017")
+kable(results_table, digits = 3,format = "markdown", caption = "Table 1 of the paper: Estimated regression coefficients on the endometrial cancer study (and standard
+errors)")
 ```
 
 # References
