@@ -1,7 +1,7 @@
 rm(list = ls())
 set.seed(1991)
-x1 <- rnorm(5)
-x2 <- rnorm(5)
+x1 <- rnorm(10)
+x2 <- rnorm(10)
 X <- cbind(x1, x2)
 X <- scale(X)
 
@@ -22,7 +22,7 @@ dgelman <- function(beta1, beta2) {
   dcauchy(beta1, 0, scale = 2.5) * dcauchy(beta2, 0, 2.5)
 }
 
-rr <- seq(-8, 8, l = 200)
+rr <- seq(-6, 6, l = 200)
 gr <- gr2 <- gr3 <- expand.grid(rr, rr)
 
 gr$values <- apply(gr, 1, function(x) dy_prior(x[1], x[2], X = X))
