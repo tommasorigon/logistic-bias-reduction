@@ -71,8 +71,6 @@ Note that maximum-likelihood estimate exists finite in this example.
 | Firth (1993)                            | -7.4 (5.66)  | -0.06 (0.05) | 0.62 (0.55) | -0.53 (0.56) | -1.45 (0.68) | -1.1 (0.9)   | 2 (1.22)    |
 | Kenne Pagui, Salvan, and Sartori (2017) | -7.64 (5.72) | -0.06 (0.05) | 0.64 (0.56) | -0.54 (0.57) | -1.48 (0.68) | -1.13 (0.91) | 2.06 (1.23) |
 
-MLE and BR estimates
-
 We assess the properties of different approaches relying on a simulation
 study. Specifically, 10000 artificial datasets are generated from the
 maximum-likelihood estimates. The approaches illustrated on Table 1 are

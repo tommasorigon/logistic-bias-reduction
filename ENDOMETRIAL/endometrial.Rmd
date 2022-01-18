@@ -33,7 +33,7 @@ fit_mle <- glm(HG ~ NV + PI + EH, data = endometrial, family = binomial("logit")
 ```
 
 ```{r mle,echo=F}
-print(summ(fit_mle, model.info = F, model.fit = F,confint = F))
+print(summ(fit_mle, model.info = F, model.fit = F, confint = F))
 beta_mle <- coef(fit_mle)
 sd_mle <- summary(fit_mle)$coefficients[, 2]
 # I manually set these parameters to + Inf
@@ -67,7 +67,7 @@ fit_dy <- glm(HG_DY ~ NV + PI + EH, data = endometrial, family = binomial("logit
 ```
 
 ```{r dy-out,echo=F}
-print(summ(fit_dy, model.info = F, model.fit = F,confint = F))
+print(summ(fit_dy, model.info = F, model.fit = F, confint = F))
 ```
 
 Table 1 in the paper compares the proposed approach with state-of-the art methods for 
@@ -111,11 +111,10 @@ sd_clogg <- summary(fit_clogg)$coefficients[, 2]
 
 estimates <- rbind(beta_mle, beta_dy, beta_clogg, beta_firth, beta_kp)
 std_errors <- rbind(sd_mle, sd_dy, sd_clogg, sd_firth, sd_kp)
-results_table = matrix(paste0(round(estimates,3)," (", round(std_errors,3),")"),ncol = 4)
-row.names(results_table) = c("MLE", "Diaconis-Ylvisaker", "@Clogg1991", "@Firth1993", "@Pagui2017")
-kable(results_table, digits = 3,format = "markdown", caption = "Table 1 of the paper: Estimated regression coefficients on the endometrial cancer study (and standard
+results_table <- matrix(paste0(round(estimates, 3), " (", round(std_errors, 3), ")"), ncol = 4)
+row.names(results_table) <- c("MLE", "Diaconis-Ylvisaker", "@Clogg1991", "@Firth1993", "@Pagui2017")
+kable(results_table, digits = 3, format = "markdown", caption = "Table 1 of the paper: Estimated regression coefficients on the endometrial cancer study (and standard
 errors)")
 ```
 
 # References
-
