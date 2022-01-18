@@ -42,14 +42,14 @@ gr$values <- gr$values / C_dy
 gr2$values <- gr2$values / C_jeff
 
 gr$w <- "Diaconis & Ylvisaker"
-gr2$w <- "Jeffrey"
+gr2$w <- "Jeffrey (Firth, 1993)"
 gr3$w <- "Cauchy (Gelman et al., 2008)"
 gr_c <- rbind(gr, gr2, gr3)
 
 library(ggplot2)
 library(metR)
 ggplot(gr_c) +
-  geom_contour(aes(x = Var1, y = Var2, z = values), bins = 10, col = "gray") +
+  geom_contour(aes(x = Var1, y = Var2, z = values), bins = 15, col = "gray") +
   geom_text_contour(aes(x = Var1, y = Var2, z = values)) +
   facet_wrap(~w) +
   theme_bw() + xlab(expression(beta[1])) + ylab(expression(beta[2]))
