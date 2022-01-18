@@ -201,13 +201,13 @@ colnames(bias.beta) <- colnames(mse.beta) <-  c("MLE", "Diaconis-Ylvisaker", "@C
 ## Bias
 
 ```{r bias,echo=F}
-kable(t(bias.beta), digits = 2, caption = "Bias")
+kable(t(bias.beta), digits = 2)
 ```
 
 ## RMSE
 
 ```{r rmse,echo=F}
-kable(t(sqrt(mse.beta)), digits = 2, caption = "RMSE")
+kable(t(sqrt(mse.beta)), digits = 2)
 ```
 
 # References
