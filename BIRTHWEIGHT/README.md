@@ -16,10 +16,6 @@ the DY regularizaion with Firth (1993), Kenne Pagui, Salvan, and Sartori
 Estimated regression coefficients are reported in the following table.
 Note that maximum-likelihood estimate exists finite in this example.
 
-    ## Warning in eval(family$initialize): non-integer #successes in a binomial glm!
-
-    ## Warning in eval(family$initialize): non-integer #successes in a binomial glm!
-
 |                                         | (Intercept) |    age | racewhite |  smoke |    ptl |     ht | loglwt |
 |:----------------------------------------|------------:|-------:|----------:|-------:|-------:|-------:|-------:|
 | MLE                                     |      -8.496 | -0.067 |     0.690 | -0.560 | -1.603 | -1.211 |  2.262 |
@@ -51,15 +47,15 @@ Bias x 100
 
 ## Rmse
 
-|                                         |      |      |      |      |      |      |      |
-|:----------------------------------------|-----:|-----:|-----:|-----:|-----:|-----:|-----:|
-| MLE                                     | 6.88 | 0.06 | 0.64 | 0.65 | 0.81 | 1.12 | 1.49 |
-| Firth (1993)                            | 5.94 | 0.05 | 0.57 | 0.58 | 0.71 | 0.95 | 1.28 |
-| Kenne Pagui, Salvan, and Sartori (2017) | 6.12 | 0.06 | 0.58 | 0.60 | 0.78 | 1.01 | 1.31 |
-| Clogg et al. (1991)                     | 5.83 | 0.05 | 0.55 | 0.57 | 0.70 | 0.97 | 1.25 |
-| Diaconis-Ylvisaker                      | 5.71 | 0.05 | 0.54 | 0.56 | 0.71 | 0.96 | 1.22 |
+|                                         |        |      |       |       |       |        |        |
+|:----------------------------------------|-------:|-----:|------:|------:|------:|-------:|-------:|
+| MLE                                     | 688.07 | 6.07 | 64.25 | 64.80 | 80.89 | 111.69 | 148.90 |
+| Firth (1993)                            | 594.48 | 5.41 | 56.79 | 57.97 | 71.45 |  94.65 | 127.78 |
+| Kenne Pagui, Salvan, and Sartori (2017) | 611.63 | 5.54 | 58.38 | 59.59 | 77.62 | 101.39 | 131.48 |
+| Clogg et al. (1991)                     | 582.54 | 5.31 | 55.24 | 56.85 | 70.38 |  97.25 | 124.96 |
+| Diaconis-Ylvisaker                      | 571.31 | 5.21 | 54.19 | 55.93 | 71.34 |  96.24 | 122.42 |
 
-RMSE
+RMSE x 100
 
 # References
 

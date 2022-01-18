@@ -1,6 +1,3 @@
 library(rmarkdown)
-render("ENDOMETRIAL/endometrial.Rmd", md_document(variant = "gfm"))
-system("cp ENDOMETRIAL/endometrial.md ENDOMETRIAL/README.md")
-
-render("BIRTHWEIGHT/birthweight.Rmd", md_document(variant = "gfm"))
-system("cp BIRTHWEIGHT/birthweight.md BIRTHWEIGHT/README.md")
+render("ENDOMETRIAL/endometrial.Rmd", md_document(variant = "gfm"),output_file = "README.md",output_dir = "ENDOMETRIAL")
+render("BIRTHWEIGHT/birthweight.Rmd", md_document(variant = "gfm"), output_file = "README.md", output_dir = "BIRTHWEIGHT")

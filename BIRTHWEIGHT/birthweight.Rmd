@@ -22,7 +22,7 @@ with @Firth1993, @Pagui2017 and @Clogg1991, relying on the package `brglm2` [@Ko
 
 Estimated regression coefficients are reported in the following table. Note that maximum-likelihood estimate
 exists finite in this example.
-```{r load, echo=F,warning=FALSE}
+```{r load, echo=F,warning=FALSE,message=F}
 ## Replicate simulations from Kosmidis et al (2020) <doi:10.1007/s11222-019-09860-6
 rm(list = ls())
 library(brglm2)
@@ -44,7 +44,7 @@ bwt <- with(birthwt, {
 bwt <- subset(bwt, subset = (ftv == 0), select = -c(ftv))
 ```
 
-```{r,echo=F}
+```{r,echo=F,warning=FALSE}
 ## ESTIMATES
 X <- model.matrix(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, data = bwt)
 p <- ncol(X)
