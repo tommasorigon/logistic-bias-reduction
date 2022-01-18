@@ -83,13 +83,13 @@ names(tt) = c("DY", "DY - fast implementation", "@Firth1993", "@Pagui2017")
 kable(tt,digits = 3,format = "markdown")
 ```
 Computational costs notably increases with $n$ and $p$, keeping the same ratio $p/n=0.2$.
-For examples, with $n=1000$ and $p=200$
+For examples, with $n=500$ and $p=100$
 
 
 ```{r,eval=T,echo=F,warning=F}
 set.seed(1)
-n <- 100
-p <- 20
+n <- 500
+p <- 100
 
 SS <- matrix(0.2, p - 1, p - 1)
 diag(SS) <- 1
