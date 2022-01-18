@@ -171,7 +171,7 @@ kable(t(bias.beta*100), digits = 2, caption = "Bias x 100")
 ## Rmse
 
 ```{r rmse,echo=F}
-kable(t(sqrt(mse.beta)), digits = 2, caption = "RMSE")
+kable(t(sqrt(mse.beta)*100), digits = 2, caption = "RMSE x 100")
 ```
 
 # References
