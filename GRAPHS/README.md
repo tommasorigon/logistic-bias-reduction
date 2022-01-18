@@ -39,12 +39,8 @@ C_dy <- hcubature(function(x) dy_prior(x[1], x[2], X = X),c(-Inf,-Inf), c(Inf,In
 C_jeff <- hcubature(function(x) jeff_prior(x[1], x[2], X = X),rep(-Inf,2), rep(Inf, 2))$integral
 
 # Sanity check
-hcubature(function(x) dgelman(x[1], x[2]),rep(-Inf,2), rep(Inf, 2))$integral
-```
+# hcubature(function(x) dgelman(x[1], x[2]),rep(-Inf,2), rep(Inf, 2))$integral
 
-    ## [1] 1
-
-``` r
 gr$values <- gr$values / C_dy
 gr2$values <- gr2$values / C_jeff
 
@@ -63,14 +59,20 @@ p1 <- ggplot(gr_c) +
 p1
 ```
 
-![](/Users/tommaso/Google%20Drive/University/Paper/R%20packages/logistic-bias-reduction/GRAPHS/README_files/figure-gfm/cars-1.png)<!-- -->
+![](/Users/tommaso/Google%20Drive/University/Paper/R%20packages/logistic-bias-reduction/GRAPHS/README_files/figure-gfm/contour-1.png)<!-- -->
 
 ``` r
 p2 <- ggplot(gr_c) +
   geom_contour_filled(aes(x = Var1, y = Var2, z = values), bins = 25) +
   facet_wrap(~w) +
-  theme_bw() + xlab(expression(beta[1])) + ylab(expression(beta[2])) + theme(legend.position = "none") #+ scale_fill_grey(start = 0.2, end = 0.8)
+  theme_bw() + xlab(expression(beta[1])) + ylab(expression(beta[2])) + theme(legend.position = "none") 
 p2
 ```
 
-![](/Users/tommaso/Google%20Drive/University/Paper/R%20packages/logistic-bias-reduction/GRAPHS/README_files/figure-gfm/cars-2.png)<!-- -->
+![](/Users/tommaso/Google%20Drive/University/Paper/R%20packages/logistic-bias-reduction/GRAPHS/README_files/figure-gfm/contour-2.png)<!-- -->
+
+``` r
+plot(cars)
+```
+
+![](/Users/tommaso/Google%20Drive/University/Paper/R%20packages/logistic-bias-reduction/GRAPHS/README_files/figure-gfm/contour-3.png)<!-- -->
