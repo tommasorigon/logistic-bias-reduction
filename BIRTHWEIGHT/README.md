@@ -70,10 +70,10 @@ Timing comparison are provided in the following table.
 
 |                                         | x          |
 |:----------------------------------------|:-----------|
-| DY                                      | 0.004 secs |
+| DY                                      | 0.005 secs |
 | DY - fast implementation                | 0.002 secs |
-| Firth (1993)                            | 0.009 secs |
-| Kenne Pagui, Salvan, and Sartori (2017) | 0.016 secs |
+| Firth (1993)                            | 0.010 secs |
+| Kenne Pagui, Salvan, and Sartori (2017) | 0.017 secs |
 
 Computational costs notably increases with *n* and *p*, keeping the same
 ratio *p*/*n* = 0.2. For examples, with *n* = 1000 and *p* = 200
@@ -82,8 +82,8 @@ ratio *p*/*n* = 0.2. For examples, with *n* = 1000 and *p* = 200
 |:----------------------------------------|:-----------|
 | DY                                      | 0.005 secs |
 | DY - fast implementation                | 0.002 secs |
-| Firth (1993)                            | 0.009 secs |
-| Kenne Pagui, Salvan, and Sartori (2017) | 0.016 secs |
+| Firth (1993)                            | 0.010 secs |
+| Kenne Pagui, Salvan, and Sartori (2017) | 0.017 secs |
 
 # References
 
