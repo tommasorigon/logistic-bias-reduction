@@ -15,9 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 Complete code associated with this page is available in the file* 
 [birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd)),
 
-This tutorial is devoted to replicating simulations from @Kosmidis2020, available in Table 2 of the article
-Data comprises $n = 100$ births and the binary outcome of interest is a dichotomization of 
-infant birthweight (low against normal). 
+This tutorial is devoted to replicating simulations from @Kosmidis2020, available in Table 2 of the article. Data comprises $n = 100$ births and the binary outcome of interest is a dichotomization of infant birthweight (low against normal). 
 
 ```{r load, echo=F,warning=FALSE,message=F}
 ## Replicate simulations from Kosmidis et al (2020) <doi:10.1007/s11222-019-09860-6
@@ -74,18 +72,17 @@ br_fit <- update(ml_fit, method = "brglmFit", type = "AS_mean", data = bwt)
 mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = bwt)
 ```
 
-Estimated regression coefficients are reported in the following table. Note that maximum-likelihood estimate
-exists finite in this example.
+Estimated regression coefficients are reported in the following table. Note that maximum-likelihood estimate exists finite in this example.
 
 ```{r,echo=F,warning=FALSE}
-se = function(x) summary(x)$coef[,"Std. Error"]
+se <- function(x) summary(x)$coef[, "Std. Error"]
 estimates <- rbind(coef(ml_fit), coef(dy_fit), coef(clogg_fit), coef(br_fit), coef(mbr_fit))
 std_errors <- rbind(se(ml_fit), se(dy_fit), se(clogg_fit), se(br_fit), se(mbr_fit))
 
-results_table = matrix(paste0(round(estimates,2)," (", round(std_errors,2),")"),ncol = p)
+results_table <- matrix(paste0(round(estimates, 2), " (", round(std_errors, 2), ")"), ncol = p)
 
-row.names(results_table) = c("MLE", "Diaconis-Ylvisaker","@Clogg1991", "@Firth1993", "@Pagui2017")
-kable(results_table, digits = 3,format = "markdown", caption = "MLE and BR estimates")
+row.names(results_table) <- c("MLE", "Diaconis-Ylvisaker", "@Clogg1991", "@Firth1993", "@Pagui2017")
+kable(results_table, digits = 3, format = "markdown")
 ```
 
 We assess the properties of different approaches relying on a simulation study.
@@ -110,20 +107,22 @@ ml <- br <- mbr <- clogg <- dy <- ml_se <- br_se <- clogg_se <- mbr_se <- dy_se 
 
 # BEGIN THE SIMULATION STUDY
 for (i in 1:Nsim) {
-  current_data <- within(bwt, {normwt <- simdata[[i]]})
+  current_data <- within(bwt, {
+    normwt <- simdata[[i]]
+  })
 
   # if (i %% 100 == 0) print(i)
   ybar <- mean(current_data$normwt)
   y_clogg <- p / (p + m) * ybar + m / (p + m) * current_data$normwt
   y_dy <- p / (p + m) * 0.5 + m / (p + m) * current_data$normwt
-  
+
   ml_fit <- glm(normwt ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = current_data)
   br_fit <- update(ml_fit, method = "brglmFit", type = "AS_mean", data = current_data)
   mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = current_data)
   sep_fit <- update(ml_fit, method = "detect_separation")
   clogg_fit <- glm(y_clogg ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = current_data)
   dy_fit <- glm(y_dy ~ age + racewhite + smoke + ptl + ht + loglwt, family = binomial, data = current_data)
-  
+
   # Summaries
   sum_ml <- summary(ml_fit)
   sum_brmean <- summary(br_fit)
@@ -178,7 +177,7 @@ mae.beta <- data.frame(
   clogg = rowMeans(abs(t(clogg) - beta)),
   dy = rowMeans(abs(t(dy) - beta))
 )
-save(list = c("bias.beta", "mse.beta", "mae.beta"),file = "birthweight_sim.RData")
+save(list = c("bias.beta", "mse.beta", "mae.beta"), file = "birthweight_sim.RData")
 ```
 
 For convenience, we store the results in the file 
@@ -192,21 +191,22 @@ load("birthweight_sim.RData")
 ```
 
 ```{r reshalpe, echo=F}
-ord = c("ml", "dy", "clogg", "br", "mbr")
-bias.beta = bias.beta[,ord]
-mse.beta = mse.beta[,ord]
-colnames(bias.beta) <- colnames(mse.beta) <-  c("MLE", "Diaconis-Ylvisaker", "@Clogg1991",  "@Firth1993", "@Pagui2017")
+ord <- c("ml", "dy", "clogg", "br", "mbr")
+bias.beta <- bias.beta[, ord]
+mse.beta <- mse.beta[, ord]
+colnames(bias.beta) <- colnames(mse.beta) <- c("MLE", "Diaconis-Ylvisaker", "@Clogg1991", "@Firth1993", "@Pagui2017")
 ```
+
 ## Bias
 
 ```{r bias,echo=F}
-kable(t(bias.beta), digits = 2, caption = "Bias")
+kable(t(bias.beta), digits = 2)
 ```
 
-## Rmse
+## RMSE
 
 ```{r rmse,echo=F}
-kable(t(sqrt(mse.beta)), digits = 2, caption = "RMSE")
+kable(t(sqrt(mse.beta)), digits = 2)
 ```
 
 # References

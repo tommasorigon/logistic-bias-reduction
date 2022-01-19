@@ -6,7 +6,7 @@ available in the file*
 [birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd)),
 
 This tutorial is devoted to replicating simulations from Kosmidis, Kenne
-Pagui, and Sartori (2020), available in Table 2 of the article Data
+Pagui, and Sartori (2020), available in Table 2 of the article. Data
 comprises *n* = 100 births and the binary outcome of interest is a
 dichotomization of infant birthweight (low against normal).
 
@@ -71,8 +71,6 @@ Note that maximum-likelihood estimate exists finite in this example.
 | Firth (1993)                            | -7.4 (5.66)  | -0.06 (0.05) | 0.62 (0.55) | -0.53 (0.56) | -1.45 (0.68) | -1.1 (0.9)   | 2 (1.22)    |
 | Kenne Pagui, Salvan, and Sartori (2017) | -7.64 (5.72) | -0.06 (0.05) | 0.64 (0.56) | -0.54 (0.57) | -1.48 (0.68) | -1.13 (0.91) | 2.06 (1.23) |
 
-MLE and BR estimates
-
 We assess the properties of different approaches relying on a simulation
 study. Specifically, 10000 artificial datasets are generated from the
 maximum-likelihood estimates. The approaches illustrated on Table 1 are
@@ -102,9 +100,7 @@ load("birthweight_sim.RData")
 | Firth (1993)                            | -0.08 |  0.00 |  0.01 |  0.00 |  0.00 |  0.00 | 0.02 |
 | Kenne Pagui, Salvan, and Sartori (2017) | -0.38 |  0.00 |  0.03 | -0.01 | -0.06 | -0.03 | 0.10 |
 
-Bias
-
-## Rmse
+## RMSE
 
 |                                         |      |      |      |      |      |      |      |
 |:----------------------------------------|-----:|-----:|-----:|-----:|-----:|-----:|-----:|
@@ -113,8 +109,6 @@ Bias
 | Clogg et al. (1991)                     | 5.83 | 0.05 | 0.55 | 0.57 | 0.70 | 0.97 | 1.25 |
 | Firth (1993)                            | 5.94 | 0.05 | 0.57 | 0.58 | 0.71 | 0.95 | 1.28 |
 | Kenne Pagui, Salvan, and Sartori (2017) | 6.12 | 0.06 | 0.58 | 0.60 | 0.78 | 1.01 | 1.31 |
-
-RMSE
 
 # References
 
