@@ -85,17 +85,29 @@ for(id_n in 1:3){
 }
 
 
+## Create list of plots
+tmp = out[[1]]
+f = function(tmp){
+  title = paste(names(tmp$settings), "=", tmp$settings, collapse = ", ")
+  df = reshape2::melt(list("Bias" = tmp$bias, "RMSE" = sqrt(tmp$mse)))
+  df$variable = factor(df$variable, labels = c("MLE", "Firth (1993)", "Clogg (1991)", "DY"))
+  library(ggplot2)
+  pl = ggplot(df) +
+    geom_boxplot(aes(y = value, x = variable,  group = variable), color = "gray50") +
+    geom_jitter(aes(y = value, x = variable,  group = variable), alpha = .2, color = "gray") +
+    facet_wrap(~L1, scales = "free") +
+    theme_bw() + xlab("") + ylab("") + theme(legend.position = "none",
+                                             axis.text.x = element_text(angle = 60,hjust = 1)) +
+    ggtitle(title)
+  return(pl)
+}
 
+pl_list = lapply(out, f)
+library(cowplot)
+mm = matrix(1:length(out), nrow = 10)
+dir.create("plots")
+for(i in 1:NCOL(mm)){
+  p_curr = plot_grid(plotlist = pl_list[mm[,i]],nrow = 2)
+  ggsave(p_curr, width = 20, height = 8,filename = sprintf("plots/p%s.pdf",i))
+}
 
-
-
-df = reshape2::melt(list("Bias" = bias.beta, "RMSE" = sqrt(mse.beta)))
-
-df$variable = factor(df$variable, labels = c("MLE", "Firth (1993)", "Clogg (1991)", "DY"))
-library(ggplot2)
-pl = ggplot(df) +
-  geom_boxplot(aes(y = value, x = variable,  group = variable), color = "gray50") +
-  geom_jitter(aes(y = value, x = variable,  group = variable), alpha = .2, color = "gray") +
-  facet_wrap(~L1, scales = "free") +
-  theme_bw() + xlab("") + ylab("") + theme(legend.position = "none")
-pl
