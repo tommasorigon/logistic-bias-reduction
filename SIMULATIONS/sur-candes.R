@@ -1,7 +1,7 @@
 rm(list = ls())
-set.seed(111)
-n <- 1000
-p <- 200
+set.seed(1)
+n <- 2000
+p <- 400
 beta <- c(rep(10, p / 8), rep(-10, p / 8), rep(0, 3 * p / 4))
 X <- matrix(rnorm(n * p, 0, sqrt(1 / n)), n, p)
 y <- rbinom(n, 1, plogis(X %*% beta))
@@ -16,10 +16,10 @@ library(brglm2)
 library(RcppNumerical)
 m <- nrow(X)
 for (i in 1:Nsim) {
-  if (i %% 10 == 0) print(i)
+  if (i %% 5 == 0) print(i)
   y <- y_sim[, i]
 
-  mle <- glm(y ~ X - 1, family = binomial("logit"))
+  mle <- fastLR(X,y)
 
   y_dy <- p / (p + m) * 0.5 + m / (p + m) * y
   y_clogg <- p / (p + m) * mean(y) + m / (p + m) * y
@@ -36,7 +36,7 @@ for (i in 1:Nsim) {
 
 
 
-  ml[i, ] <- coef(mle)
+  ml[i, ] <- mle$coefficients
   dy[i, ] <- fit_fast_dy$coefficients
   clogg[i, ] <- fit_fast_clogg$coefficients
   br[i, ] <- coef(fit_firth)
@@ -59,5 +59,5 @@ mse.beta <- data.frame(
   dy = rowMeans((t(dy) - beta)^2)
 )
 
-#save(list = c("mse.beta", "bias.beta"), file = "n1000_p200_1.RData")
+save(list = c("mse.beta", "bias.beta"), file = "sur-candes.RData")
 

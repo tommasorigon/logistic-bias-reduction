@@ -1,17 +1,20 @@
 # Simulation studies
 
 In this tutorial we focus on different simulation studies to evaluate
-the performance of the proposed DY correction
+the performance of the proposed DY correction against competitors.
 
 ## First example
 
-The first example is taken from Sur and Candès (2019) and commented in
-Kosmidis and Firth (2021)
+The first example is taken from Appendix D Sur and Candès (2019) and the
+Supplementary Materialds of Kosmidis and Firth (2021), and focuses on a
+setting with *n* = 1000 observations from a logisitc regression model
+with *p* = 200, 25 of coefficients equal to 10, 25 of coefficients equal
+to  − 10 and the remaining set as 0.
 
 ``` r
 set.seed(1)
-n <- 1000
-p <- 200
+n <- 2000
+p <- 400
 beta <- c(rep(10, p / 8), rep(-10, p / 8), rep(0, 3 * p / 4))
 X <- matrix(rnorm(n * p, 0, sqrt(1 / n)), n, p)
 y <- rbinom(n, 1, plogis(X %*% beta))
@@ -60,13 +63,13 @@ elapsed_firth <- t1 - t0
 <img src="figs/coef.png" style="display: block; margin: auto;" />
 
 We evaluate bias and rmse across 1000 replications of this scenario.
-Computations takes roughly 1 hour on a 2020 Macbook Pro with M1
+Computations takes roughly 5 hours on a 2020 Macbook Pro with M1
 processor (`aarch64-apple-darwin20`) running R 4.1.1 linked with
-`openblas`. Results are stored in the file `n1000_p200_1.RData` and can
-be reproduced running the script
-[`sur-candes-1.R`](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/SIMULATIONS/sur-candes-1.R)
+`openblas`. Results are stored in the file `sur-candes.RData` and can be
+reproduced running the script
+[`sur-candes.R`](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/SIMULATIONS/sur-candes.R)
 
-![](figs/boxpl-1.png)<!-- -->
+<img src="figs/boxpl-1.png" style="display: block; margin: auto;" />
 
 # References
 

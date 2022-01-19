@@ -13,15 +13,18 @@ library(ggplot2)
 # Simulation studies
 
 In this tutorial we focus on different simulation studies to evaluate
-the performance of the proposed DY correction
+the performance of the proposed DY correction against competitors.
 
 ## First example
-The first example is taken from @Sur2019 and commented in @Kosmidis2021
+The first example is taken from Appendix D @Sur2019 and the Supplementary Materialds of @Kosmidis2021,
+and focuses on a setting with $n=1000$ observations from a logisitc regression model with
+$p=200$, $25%$ of coefficients equal to $10$, $25%$ of coefficients equal to $-10$ and the remaining set 
+as $0$.
 
 ```{r,echo=T}
 set.seed(1)
-n <- 1000
-p <- 200
+n <- 2000
+p <- 400
 beta <- c(rep(10, p / 8), rep(-10, p / 8), rep(0, 3 * p / 4))
 X <- matrix(rnorm(n * p, 0, sqrt(1 / n)), n, p)
 y <- rbinom(n, 1, plogis(X %*% beta))
@@ -95,16 +98,20 @@ include_graphics("figs/coef.png")
 
 
 We evaluate bias and rmse across 1000 replications of this scenario.
-Computations takes roughly 1 hour on a 2020 Macbook Pro with M1 processor 
+Computations takes roughly 5 hours on a 2020 Macbook Pro with M1 processor 
 (`aarch64-apple-darwin20`)  running R 4.1.1 linked with `openblas`.
-Results are stored in the file `n1000_p200_1.RData` and can be reproduced running
-the script [`sur-candes-1.R`](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/SIMULATIONS/sur-candes-1.R)
+Results are stored in the file `sur-candes.RData` and can be reproduced running
+the script [`sur-candes.R`](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/SIMULATIONS/sur-candes.R)
 
-```{r, echo=F,warning=F,message=FALSE,fig.height=2}
-load("n1000_p200_1.RData")
+```{r, echo=F,warning=F,message=FALSE,fig.height=3,fig.width=12,fig.align='center'}
+load("sur-candes.RData")
 df = reshape2::melt(list("Bias" = bias.beta, "RMSE" = sqrt(mse.beta)))
 df$variable = factor(df$variable, levels = c("ml", "dy", "clogg", "br"),
  labels=                     c("MLE","DY",  "Clogg (1991)", "Firth (1993)"),ord=T)
+df_zoomed = df
+df_zoomed = df_zoomed[df_zoomed$variable != "MLE",]
+df_zoomed$L1 = factor(df_zoomed$L1, labels = c("Bias (zoomed)", "RMSE (zoomed)"))
+
 library(ggplot2)
 pl = ggplot(df) +
   geom_boxplot(aes(y = value, x = variable,  group = variable), color = "gray50") +
@@ -113,7 +120,17 @@ pl = ggplot(df) +
   theme_bw() + xlab("") + ylab("") + 
   theme(legend.position = "none",  axis.text.x = element_text(angle = 60,hjust = 1)
         )
-ggsave(pl, file = "figs/boxpl-1.png", width = 6,height = 3.5)
+pl_z = ggplot(df_zoomed) +
+  geom_boxplot(aes(y = value, x = variable,  group = variable), color = "gray50") +
+  geom_jitter(aes(y = value, x = variable,  group = variable), alpha = .2, color = "gray") +
+  facet_wrap(~L1, scales = "free") +
+  theme_bw() + xlab("") + ylab("") + 
+  theme(legend.position = "none",  axis.text.x = element_text(angle = 60,hjust = 1)
+        )
+library(patchwork)
+pl_final = (pl | pl_z) + plot_layout(widths = c(8,6))
+
+ggsave(pl_final, file = "figs/boxpl-1.png",  width = 12,height = 3.5)
 include_graphics("figs/boxpl-1.png")
 ```
 
