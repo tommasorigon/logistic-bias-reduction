@@ -57,7 +57,7 @@ t1 <- Sys.time()
 elapsed_firth <- t1 - t0
 ```
 
-<img src="/Users/meme/GIT/logistic-bias-reduction/SIMULATIONS/README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+<img src="figs/coef.png" style="display: block; margin: auto;" />
 
 We evaluate bias and rmse across 1000 replications of this scenario.
 Computations takes roughly 1 hour on a 2020 Macbook Pro with M1
@@ -66,10 +66,7 @@ processor (`aarch64-apple-darwin20`) running R 4.1.1 linked with
 be reproduced running the script
 [`sur-candes-1.R`](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/SIMULATIONS/sur-candes-1.R)
 
-    ## No id variables; using all as measure variables
-    ## No id variables; using all as measure variables
-
-<img src="/Users/meme/GIT/logistic-bias-reduction/SIMULATIONS/README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+![](figs/boxpl-1.png)<!-- -->
 
 # References
 

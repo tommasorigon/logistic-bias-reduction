@@ -84,11 +84,13 @@ df_list$b0 = rep(beta,length(cc))
 df_list$L1 = ordered(factor(df_list$L1,levels = c("MLE", "DY", "Clogg", "Firth"), labels = 
          c("MLE","DY",  "Clogg (1991)", "Firth (1993)")))
 
-ggplot(df_list) + 
+pl = ggplot(df_list) + 
   geom_point(aes(x,value)) + 
   geom_line(aes(x,b0), color = "red") + 
   facet_wrap(~L1,nrow = 1) +
   theme_bw() + xlab("") + ylab("")
+ggsave(pl, file = "figs/coef.png", width = 12,height = 3)
+include_graphics("figs/coef.png")
 ```
 
 
@@ -98,7 +100,7 @@ Computations takes roughly 1 hour on a 2020 Macbook Pro with M1 processor
 Results are stored in the file `n1000_p200_1.RData` and can be reproduced running
 the script [`sur-candes-1.R`](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/SIMULATIONS/sur-candes-1.R)
 
-```{r, echo=F,warning=F,fig.height=4,fig.width=6,fig.align='center'}
+```{r, echo=F,warning=F,message=FALSE,fig.height=2}
 load("n1000_p200_1.RData")
 df = reshape2::melt(list("Bias" = bias.beta, "RMSE" = sqrt(mse.beta)))
 df$variable = factor(df$variable, levels = c("ml", "dy", "clogg", "br"),
@@ -111,7 +113,8 @@ pl = ggplot(df) +
   theme_bw() + xlab("") + ylab("") + 
   theme(legend.position = "none",  axis.text.x = element_text(angle = 60,hjust = 1)
         )
-pl
+ggsave(pl, file = "figs/boxpl-1.png", width = 6,height = 3.5)
+include_graphics("figs/boxpl-1.png")
 ```
 
 # References
