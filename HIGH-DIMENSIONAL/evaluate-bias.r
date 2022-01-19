@@ -1,5 +1,5 @@
 rm(list = ls())
-set.seed(1)
+set.seed(111)
 n <- 1000
 p <- 200
 beta <- c(rep(10, p / 8), rep(-10, p / 8), rep(0, 3 * p / 4))
@@ -64,10 +64,11 @@ save(list = c("mse.beta", "bias.beta"), file = "n1000_p200_1.RData")
 df = reshape2::melt(list("Bias" = bias.beta, "RMSE" = sqrt(mse.beta)))
 
 df$variable = factor(df$variable, labels = c("MLE", "Firth (1993)", "Clogg (1991)", "DY"))
-
+library(ggplot2)
 pl = ggplot(df) +
   geom_boxplot(aes(y = value, x = variable,  group = variable), color = "gray50") +
   geom_jitter(aes(y = value, x = variable,  group = variable), alpha = .2, color = "gray") +
   facet_wrap(~L1, scales = "free") +
   theme_bw() + xlab("") + ylab("") + theme(legend.position = "none")
-ggssave(pl, file = "boxpl-1.pdf", height = 4, width = 8)
+pl
+ggsave(pl, file = "boxpl-1.pdf", height = 4, width = 8)

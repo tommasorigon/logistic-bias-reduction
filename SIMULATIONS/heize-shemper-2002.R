@@ -56,7 +56,7 @@ for(id_n in 1:3){
             dy[i, ] <- fit_fast_dy$coefficients
             clogg[i, ] <- fit_fast_clogg$coefficients
             br[i, ] <- coef(fit_firth)
-          }
+          } # end loop across Nsim
 
 
           ## BIAS in beta parameterization
