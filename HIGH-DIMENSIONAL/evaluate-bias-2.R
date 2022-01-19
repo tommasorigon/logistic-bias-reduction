@@ -1,8 +1,8 @@
 rm(list = ls())
-set.seed(1)
+set.seed(1991)
 n <- 1000
 p <- 200
-beta <- c(rep(10, p/8), rep(-10, p/8), rep(0, 3*p/4))
+beta <- rnorm(p,sd = sqrt(1/n))
 X <- matrix(rnorm(n * p, 0, sqrt(1/n)), n, p)
 y <- rbinom(n, 1, plogis(X %*% beta))
 
@@ -63,8 +63,8 @@ mse.beta <- data.frame(
   dy = rowMeans((t(dy) - beta)^2)
 )
 
-save(list = c("mse.beta", "bias.beta"), file = "n1000_p200_1.RData")
-# load("n1000_p200_1.RData")
+save(list = c("mse.beta", "bias.beta"), file = "n1000_p200_2.RData")
+load("n1000_p200_2.RData")
 df = reshape2::melt(list("Bias" = bias.beta, "RMSE" = sqrt(mse.beta)))
 
 df$variable = factor(df$variable, labels = c("MLE", "Firth (1993)", "Clogg (1991)", "DY"))
@@ -74,5 +74,5 @@ pl = ggplot(df) +
   geom_jitter(aes(y = value, x = variable,  group = variable), alpha = .2, color = "gray") +
   facet_wrap(~L1, scales = "free") +
   theme_bw() + xlab("") + ylab("") + theme(legend.position = "none")
-ggssave(pl, file = "boxpl-1.pdf", height = 4, width = 8)
-
+pl
+ggsave(pl, file = "boxpl-2.pdf", width = 8, height = 4)
