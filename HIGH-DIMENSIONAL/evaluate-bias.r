@@ -59,8 +59,8 @@ mse.beta <- data.frame(
   dy = rowMeans((t(dy) - beta)^2)
 )
 
-save(list = c("mse.beta", "bias.beta"), file = "n1000_p200_1.RData")
-# load("n1000_p200_1.RData")
+#save(list = c("mse.beta", "bias.beta"), file = "n1000_p200_1.RData")
+ load("n1000_p200_1.RData")
 df = reshape2::melt(list("Bias" = bias.beta, "RMSE" = sqrt(mse.beta)))
 
 df$variable = factor(df$variable, labels = c("MLE", "Firth (1993)", "Clogg (1991)", "DY"))
@@ -71,4 +71,3 @@ pl = ggplot(df) +
   facet_wrap(~L1, scales = "free") +
   theme_bw() + xlab("") + ylab("") + theme(legend.position = "none")
 pl
-ggsave(pl, file = "boxpl-1.pdf", height = 4, width = 8)

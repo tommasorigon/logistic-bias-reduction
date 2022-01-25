@@ -1,13 +1,13 @@
 rm(list = ls())
-set.seed(1)
-n <- 2000
-p <- 400
+set.seed(1991)
+n <- 1000
+p <- 200
 beta <- c(rep(10, p / 8), rep(-10, p / 8), rep(0, 3 * p / 4))
 X <- matrix(rnorm(n * p, 0, sqrt(1 / n)), n, p)
 y <- rbinom(n, 1, plogis(X %*% beta))
 
 m0 <- glm(y ~ X - 1, family = binomial("logit"))
-Nsim <- 1e3
+Nsim <- 5e3
 y_sim <- simulate(m0, nsim = Nsim)
 
 ml <- br <- clogg <- dy <- matrix(NA, nrow = Nsim, ncol = length(beta))
