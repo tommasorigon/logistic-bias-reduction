@@ -9,6 +9,9 @@ bibliography: ["../biblio.bib"]
 library(knitr)
 library(ggplot2)
 ```
+*(This tutorial illustrates main results of the analysis in an easy-to-read format.
+Complete code associated with this page is available in the file* 
+[simulation-studies.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/simulation-studies.Rmd)),
 
 # Simulation studies
 
@@ -71,10 +74,11 @@ t1 <- Sys.time()
 elapsed_firth <- t1 - t0
 ```
 
+The following table and figure compare elapsed time and point estimates, respectively, for a single replication.
 
-```{r print-r,echo=F,eval=F}
-tt = c( elapsed_fast_dy, elapsed_firth)
-names(tt) = c("DY - fast implementation", "@Firth1993")
+```{r print-r,echo=F,eval=T}
+tt = data.frame("timing" = c( elapsed_fast_dy, elapsed_firth))
+rownames(tt) = c("DY - fast implementation", "@Firth1993")
 kable(tt,digits = 3,format = "markdown")
 ```
 
@@ -107,8 +111,9 @@ We evalutate the frequency properties of
 different estimators in terms of bias and RMSE, across 5000 replications of this scenario.
 Results are stored in the file `sur-candes.RData` and can be reproduced running
 the script
-[`sur-candes.R`](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/SIMULATIONS/sur-candes.R)
-(takes roughly 4 hours).
+[`sur-candes.R`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/sur-candes.R)
+(takes approximately 4 hours).
+
 ```{r, echo=F,warning=F,message=FALSE,fig.height=3,fig.width=12,fig.align='center'}
 load("sur-candes.RData")
 rmse.beta = sqrt(mse.beta)

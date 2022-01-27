@@ -48,13 +48,14 @@ endometrial$HG_DY <- p / (p + m) * 0.5 + m / (p + m) * endometrial$HG
 
 Our method can be estimated directly via `glm`, or other more efficient
 implementations for logistic regression models (refer to
-[high-dimensional](../TEST) for further examples in higher dimensions).
-Note that pseudo counts are not necessary integers, and this might
-prompt a warning when `glm` is called with `binomial` family. Such
-warnings can be avoided relying on the `quasi` family with link and
-variance function corresponding to binomial likelihood. In both cases,
-penalized likelihood optimization provide finite values for all
-coefficients.
+[HIGH-DIMENSIONAL-SYNTHETIC](../HIGH-DIMENSIONAL-SYNTHETIC) for further
+examples in higher dimensions). Note that pseudo counts are not
+necessary integers, and this might prompt a warning when `glm` is called
+with `binomial` family. Such warnings can be avoided relying on the
+`quasi` family with link and variance functions corresponding to
+binomial likelihood. In both cases, penalized likelihood optimization
+provide finite values for all coefficients, in virtue of Theorem 1 of
+the article.
 
 ``` r
 fit_dy <- glm(HG_DY ~ NV + PI + EH, data = endometrial, family = binomial("logit"))
@@ -77,9 +78,9 @@ art methods for bias-reduction, such as Firth (1993) and Kenne Pagui,
 Salvan, and Sartori (2017), conveniently implemented in the R package
 `brglm2` (Kosmidis 2021); refer also to Kosmidis, Kenne Pagui, and
 Sartori (2020). We also compare the proposed method with the approach of
-(Clogg et al. 1991), which also relies on a conjugate prior
-specification inducing pseudo-counts and shrinking estimates toward the
-empirical proportion.
+(Clogg et al. 1991), which relies on a conjugate prior specification
+inducing pseudo-counts and shrinking estimates toward the empirical
+proportion.
 
 ``` r
 # CLOGG ET AL. (1991)

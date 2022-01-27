@@ -1,3 +1,8 @@
+*(This tutorial illustrates main results of the analysis in an
+easy-to-read format. Complete code associated with this page is
+available in the file*
+[simulation-studies.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/simulation-studies.Rmd)),
+
 # Simulation studies
 
 The purpose of this study is to investigate the behavior of the proposed
@@ -62,14 +67,23 @@ t1 <- Sys.time()
 elapsed_firth <- t1 - t0
 ```
 
+The following table and figure compare elapsed time and point estimates,
+respectively, for a single replication.
+
+|                          | timing     |
+|:-------------------------|:-----------|
+| DY - fast implementation | 0.002 secs |
+| Firth (1993)             | 0.625 secs |
+
 <img src="figs/coef.png" style="display: block; margin: auto;" />
 
 We evalutate the frequency properties of different estimators in terms
 of bias and RMSE, across 5000 replications of this scenario. Results are
 stored in the file `sur-candes.RData` and can be reproduced running the
 script
-[`sur-candes.R`](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/SIMULATIONS/sur-candes.R)
-(takes roughly 4 hours).
+[`sur-candes.R`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/sur-candes.R)
+(takes approximately 4 hours).
+
 <img src="figs/boxpl-1.png" style="display: block; margin: auto;" />
 
 # References

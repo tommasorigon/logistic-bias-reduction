@@ -1,9 +1,14 @@
 .Rproj.user
+.Rproj
 .Rhistory
 .RData
 .Ruserdata
 # compiled files
-.html
+*.html
 *_files/*
-*cache/*
+*_cache*
 .DS_Store
+# former folder
+SIMULATIONS/
+# large files
+full_sim*.RData
