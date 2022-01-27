@@ -3,7 +3,7 @@
 *(This tutorial illustrates main results of the analysis in an
 easy-to-read format. Complete code associated with this page is
 available in the file*
-[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd)),
+[birthweight.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight.Rmd)),
 
 This tutorial is devoted to includsimulations from Kosmidis, Kenne
 Pagui, and Sartori (2020), available in Table 2 of the article. Data
@@ -82,7 +82,7 @@ requires roughly 3 minutes on a 2020 Macbook Pro with M1 processor
 For convenience, we store the results in the file
 [`birthweight_sim.RData`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight_sim.RData),
 which can be loaded directly; refer to
-[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd),
+[birthweight.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight.Rmd)
 for a complete illustration of the code adapted from Kosmidis, Kenne
 Pagui, and Sartori (2020).
 

@@ -73,7 +73,7 @@ respectively, for a single replication.
 |                          | timing     |
 |:-------------------------|:-----------|
 | DY - fast implementation | 0.002 secs |
-| Firth (1993)             | 0.625 secs |
+| Firth (1993)             | 0.627 secs |
 
 <img src="figs/coef.png" style="display: block; margin: auto;" />
 

@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 *(This tutorial illustrates main results of the analysis in an easy-to-read format.
 Complete code associated with this page is available in the file* 
-[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd)),
+[birthweight.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight.Rmd)),
 
 This tutorial is devoted to includsimulations from @Kosmidis2020, available in Table 2 of the article. 
 Data comprises $n = 100$ births and the binary outcome of interest is a dichotomization of infant birthweight (low against normal). 
@@ -184,7 +184,7 @@ save(list = c("bias.beta", "mse.beta", "mae.beta"), file = "birthweight_sim.RDat
 For convenience, we store the results in the file 
 [`birthweight_sim.RData`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight_sim.RData),
 which can be loaded directly; refer to
-[birthweight.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/BIRTHWEIGHT/birthweight.Rmd),
+[birthweight.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight.Rmd)
 for a complete illustration of the code adapted from @Kosmidis2020.
 
 ```{r report,echo=T,eval=T}

@@ -3,7 +3,7 @@
 *(This tutorial illustrates main results of the analysis in an
 easy-to-read format. Complete code associated with this page is
 available in the file*
-[endometrial.Rmd](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/ENDOMETRIAL/endometrial.Rmd)),
+[endometrial.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/ENDOMETRIAL/endometrial.Rmd)),
 
 The endometrial cancer study is illustrated in Heinze and Schemper
 (2002), and focuses on *n* = 79 patients to evaluate the relationship
