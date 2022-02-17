@@ -12,3 +12,6 @@
 SIMULATIONS/
 # large files
 full_sim*.RData
+
+# simulation not included
+ENDOMETRIAL/heinz*

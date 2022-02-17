@@ -1,14 +1,14 @@
 rm(list = ls())
 set.seed(1991)
-n <- 1000
-p <- 200
+n = 1000
+p = 200
 b0 = c(3,1.5,0, -1.5,-3)
 beta = rep(b0,each = p/5)
-X <- matrix(rnorm(n * (p), 0, sqrt(1 / n)), n, p)
-y <- rbinom(n, 1, plogis(X %*% beta))
+X = matrix(rnorm(n * (p), 0, sqrt(1 / n)), n, p)
+y = rbinom(n, 1, plogis(X %*% beta))
 
-m <- nrow(X)
-y_dy <- p / (p + m) * 0.5 + m / (p + m) * y
+m = nrow(X)
+y_dy = p / (p + m) * 0.5 + m / (p + m) * y
 
 library(microbenchmark)
 library(RcppNumerical)
@@ -45,22 +45,23 @@ sessionInfo()
 # DY    1.135413    1.148615    1.208988    1.209213    1.22346    2.757537    100  a
 # FIRTH 1033.778879 1052.329616 1080.138944 1083.305444 1096.14328 1199.019047    100   b
 
-## Consider larger values of N
-rm(list = ls())
-set.seed(1991)
-n <- 10000
-p <- 2000
+
+
+## Consider a settings with correlated covariates. Firth takes more than 2 hours
+n = 10000
+p = 2000
 b0 = c(3,1.5,0, -1.5,-3)
 beta = rep(b0,each = p/5)
-X <- matrix(rnorm(n * (p), 0, sqrt(1 / n)), n, p)
-y <- rbinom(n, 1, plogis(X %*% beta))
+S = tcrossprod(matrix(rnorm(p*10),p)) + diag(1/n,p,p)
+X = mvtnorm::rmvnorm(n, sigma = S)
+y = rbinom(n, 1, plogis(X %*% beta))
+m = nrow(X)
+y_dy = p / (p + m) * 0.5 + m / (p + m) * y
 
-m <- nrow(X)
-y_dy <- p / (p + m) * 0.5 + m / (p + m) * y
 
-library(RcppNumerical)
-library(brglm2)
-# Focus on a single replication
+# Focus on a single replication (takes roughly 1 second)
 fastLR(X, y_dy)
-# Takes a considerable amount of time
-# brglm_fit(X,y, family = binomial("logit"), control = list(type = "AS_mean") )
+# Takes a considerable amount of time (> 2 hours)
+t0 = Sys.time()
+brglm_fit(X,y, family = binomial("logit"), control = list(type = "AS_mean",maxit = 5e3))
+t1 = t0 - Sys.time()

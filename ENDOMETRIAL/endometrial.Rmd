@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 *(This tutorial illustrates main results of the analysis in an easy-to-read format.
 Complete code associated with this page is available in the file* 
-[endometrial.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/ENDOMETRIAL/endometrial.Rmd)),
+[endometrial.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/ENDOMETRIAL/endometrial.Rmd))
 
 The endometrial cancer study is illustrated in @Heinze2002, and focuses on $n = 79$ patients 
 to evaluate the relationship between the histology of the endometrium (low against high), 
@@ -72,7 +72,7 @@ fit_dy <- glm(HG_DY ~ NV + PI + EH, data = endometrial, family = binomial("logit
 print(summ(fit_dy, model.info = F, model.fit = F, confint = F))
 ```
 
-Table 1 in the paper compares the proposed approach with state-of-the art methods for 
+The following table compares the proposed approach with state-of-the art methods for 
 bias-reduction, such as @Firth1993 and @Pagui2017, conveniently implemented in the 
 R package `brglm2` [@brglm2]; refer also to @Kosmidis2020.
 We also compare the proposed method with the approach of [@Clogg1991], which relies on a 

@@ -5,8 +5,8 @@ easy-to-read format. Complete code associated with this page is
 available in the file*
 [birthweight.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight.Rmd)),
 
-This tutorial is devoted to includsimulations from Kosmidis, Kenne
-Pagui, and Sartori (2020), available in Table 2 of the article. Data
+This tutorial is devoted to reproduce simulations from Kosmidis, Kenne
+Pagui, and Sartori (2020), available in Table 1 of the article. Data
 comprises *n* = 100 births and the binary outcome of interest is a
 dichotomization of infant birthweight (low against normal).
 
@@ -62,14 +62,20 @@ mbr_fit <- update(ml_fit, method = "brglmFit", type = "AS_median", data = bwt)
 
 Estimated regression coefficients are reported in the following table.
 Note that maximum-likelihood estimate exists finite in this example.
+Values in brackets correspond to the standard errors.
 
-|                                         |              |              |             |              |              |              |             |
-|:----------------------------------------|:-------------|:-------------|:------------|:-------------|:-------------|:-------------|:------------|
-| MLE                                     | -8.5 (5.83)  | -0.07 (0.05) | 0.69 (0.57) | -0.56 (0.58) | -1.6 (0.7)   | -1.21 (0.92) | 2.26 (1.25) |
-| Diaconis-Ylvisaker                      | -7.58 (5.66) | -0.06 (0.05) | 0.62 (0.55) | -0.51 (0.56) | -1.47 (0.68) | -1.09 (0.9)  | 2.03 (1.22) |
-| Clogg et al. (1991)                     | -7.67 (5.7)  | -0.06 (0.05) | 0.63 (0.55) | -0.52 (0.57) | -1.47 (0.68) | -1.1 (0.9)   | 2.06 (1.22) |
-| Firth (1993)                            | -7.4 (5.66)  | -0.06 (0.05) | 0.62 (0.55) | -0.53 (0.56) | -1.45 (0.68) | -1.1 (0.9)   | 2 (1.22)    |
-| Kenne Pagui, Salvan, and Sartori (2017) | -7.64 (5.72) | -0.06 (0.05) | 0.64 (0.56) | -0.54 (0.57) | -1.48 (0.68) | -1.13 (0.91) | 2.06 (1.23) |
+|                                         |        |        |        |        |        |        |        |
+|:----------------------------------------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|
+| MLE                                     | -8.5   | -0.07  | 0.69   | -0.56  | -1.6   | -1.21  | 2.26   |
+|                                         | (5.83) | (0.05) | (0.57) | (0.58) | (0.7)  | (0.92) | (1.25) |
+| Diaconis-Ylvisaker                      | -7.58  | -0.06  | 0.62   | -0.51  | -1.47  | -1.09  | 2.03   |
+|                                         | (5.66) | (0.05) | (0.55) | (0.56) | (0.68) | (0.9)  | (1.22) |
+| Clogg et al. (1991)                     | -7.67  | -0.06  | 0.63   | -0.52  | -1.47  | -1.1   | 2.06   |
+|                                         | (5.7)  | (0.05) | (0.55) | (0.57) | (0.68) | (0.9)  | (1.22) |
+| Firth (1993)                            | -7.4   | -0.06  | 0.62   | -0.53  | -1.45  | -1.1   | 2      |
+|                                         | (5.66) | (0.05) | (0.55) | (0.56) | (0.68) | (0.9)  | (1.22) |
+| Kenne Pagui, Salvan, and Sartori (2017) | -7.64  | -0.06  | 0.64   | -0.54  | -1.48  | -1.13  | 2.06   |
+|                                         | (5.72) | (0.05) | (0.56) | (0.57) | (0.68) | (0.91) | (1.23) |
 
 We assess the properties of different approaches relying on a simulation
 study. Specifically, 10000 artificial datasets are generated from the
@@ -78,6 +84,7 @@ estimated for each replications, and we evaluate their performance in
 terms of bias and root mean squared error. Note that the simulation
 requires roughly 3 minutes on a 2020 Macbook Pro with M1 processor
 (`aarch64-apple-darwin20`) running R 4.1.1 linked with `openblas`.
+Absolute computational time might be different on other architectures.
 
 For convenience, we store the results in the file
 [`birthweight_sim.RData`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight_sim.RData),
@@ -85,10 +92,6 @@ which can be loaded directly; refer to
 [birthweight.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/BIRTHWEIGHT/birthweight.Rmd)
 for a complete illustration of the code adapted from Kosmidis, Kenne
 Pagui, and Sartori (2020).
-
-``` r
-load("birthweight_sim.RData")
-```
 
 ## Bias
 

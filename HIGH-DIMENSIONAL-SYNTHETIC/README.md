@@ -39,9 +39,13 @@ for a single estimation. Analysis are conducted on a 2020 Macbook Pro
 with M1 processor (`aarch64-apple-darwin20`) running R 4.1.1 linked with
 `openblas`. For more details on computational performance refer to the
 file
-[`compare_timing.r`](https://raw.githubusercontent.com/tommasorigon/logistic-bias-reduction/main/HIGH-DIMENSIONAL-SYNTHETIC/compare_timing.r),
-where we compare the elapsed timing with and without classical BLAS
-libraries via `microbenchmark`.
+[`compare_timing.r`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/compare_timing.r),
+where we compare the elapsed timing [with and without classical BLAS
+libraries](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/compare_timing.r#L25-L47)
+via `microbenchmark`, and show the limits of Firth’s correction in a
+[large
+settings](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/compare_timing.r#L50-L69)
+with correlated design matrix.
 
 ``` r
 library(brglm2)
@@ -73,12 +77,12 @@ respectively, for a single replication.
 |                          | timing     |
 |:-------------------------|:-----------|
 | DY - fast implementation | 0.002 secs |
-| Firth (1993)             | 0.627 secs |
+| Firth (1993)             | 0.539 secs |
 
 <img src="figs/coef.png" style="display: block; margin: auto;" />
 
-We evalutate the frequency properties of different estimators in terms
-of bias and RMSE, across 5000 replications of this scenario. Results are
+We evaluate the frequency properties of different estimators in terms of
+bias and RMSE, across 5000 replications of this scenario. Results are
 stored in the file `sur-candes.RData` and can be reproduced running the
 script
 [`sur-candes.R`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/sur-candes.R)

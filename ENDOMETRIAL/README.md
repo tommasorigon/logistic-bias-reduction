@@ -3,7 +3,7 @@
 *(This tutorial illustrates main results of the analysis in an
 easy-to-read format. Complete code associated with this page is
 available in the file*
-[endometrial.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/ENDOMETRIAL/endometrial.Rmd)),
+[endometrial.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/ENDOMETRIAL/endometrial.Rmd))
 
 The endometrial cancer study is illustrated in Heinze and Schemper
 (2002), and focuses on *n* = 79 patients to evaluate the relationship
@@ -73,8 +73,8 @@ fit_dy <- glm(HG_DY ~ NV + PI + EH, data = endometrial, family = binomial("logit
     ## EH                  -2.46   0.75    -3.29   0.00
     ## ------------------------------------------------
 
-Table 1 in the paper compares the proposed approach with state-of-the
-art methods for bias-reduction, such as Firth (1993) and Kenne Pagui,
+The following table compares the proposed approach with state-of-the art
+methods for bias-reduction, such as Firth (1993) and Kenne Pagui,
 Salvan, and Sartori (2017), conveniently implemented in the R package
 `brglm2` (Kosmidis 2021); refer also to Kosmidis, Kenne Pagui, and
 Sartori (2020). We also compare the proposed method with the approach of
