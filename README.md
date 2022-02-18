@@ -1,5 +1,5 @@
 # Bias reduction methods for logistic regression via Diaconis-Ylvisaker conjugate prior
-This repository is associated with the article "Rigon, Aliverti (2022). [*Conjugate priors and bias reduction for logistic regression models*"](https://arxiv.org/abs/AXID) and contains code implementing bias-reduction via
+This repository is associated with the article "Rigon, Aliverti (2022). [*Conjugate priors and bias reduction for logistic regression models*"](http://arxiv.org/abs/2202.08734) and contains code implementing bias-reduction via
 Diaconis-Ylvisaker conjugate prior and tutorials reproducing the results of the article.
 
 - [BIRTHWEIGHT](./BIRTHWEIGHT) focuses on the `birthweight` dataset available in the `MASS` package, and contains code to reproduce results from Section 4.1 of the paper. 
