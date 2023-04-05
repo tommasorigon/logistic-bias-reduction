@@ -77,7 +77,7 @@ respectively, for a single replication.
 |                          | timing     |
 |:-------------------------|:-----------|
 | DY - fast implementation | 0.002 secs |
-| Firth (1993)             | 0.634 secs |
+| Firth (1993)             | 0.633 secs |
 
 <img src="figs/coef.png" style="display: block; margin: auto;" />
 
@@ -96,144 +96,11 @@ Lastly, we evaluate the predictive performance of the three apporaches
 in terms of accuracy, sensitivity and sensibility (using the value $0.5$
 as a threshold) and in terms of Area Under the Roc curve (AUC).
 
-``` r
-# load results
-load("full_sim.RData")
-pr_ml = plogis(tcrossprod(X, ml))
-pr_dy = plogis(tcrossprod(X, dy))
-pr_br = plogis(tcrossprod(X, br))
-
-# Predictive performance
-acc_dy = acc_ml = acc_br = numeric(Nsim)
-auc_dy = auc_ml = auc_br = numeric(Nsim)
-spec_dy = spec_ml = spec_br = numeric(Nsim)
-sens_dy = sens_ml = sens_br = numeric(Nsim)
-
-for(it in 1:Nsim){
-  acc_ml[it] = 1-ModelMetrics::ce(y_sim[,it], pr_ml[,it] > 0.5)
-  acc_dy[it] = 1-ModelMetrics::ce(y_sim[,it], pr_dy[,it] > 0.5)
-  acc_br[it] = 1-ModelMetrics::ce(y_sim[,it], pr_br[,it] > 0.5)
-
-  auc_ml[it] = ModelMetrics::auc(y_sim[,it], pr_ml[,it])
-  auc_dy[it] = ModelMetrics::auc(y_sim[,it], pr_dy[,it])
-  auc_br[it] = ModelMetrics::auc(y_sim[,it], pr_br[,it])
-
-  spec_ml[it] = ModelMetrics::specificity(y_sim[,it], pr_ml[,it])
-  spec_dy[it] = ModelMetrics::specificity(y_sim[,it], pr_dy[,it])
-  spec_br[it] = ModelMetrics::specificity(y_sim[,it], pr_br[,it])
-
-  sens_ml[it] = ModelMetrics::sensitivity(y_sim[,it], pr_ml[,it])
-  sens_dy[it] = ModelMetrics::sensitivity(y_sim[,it], pr_dy[,it])
-  sens_br[it] = ModelMetrics::sensitivity(y_sim[,it], pr_br[,it])
-}
-
-acc_all = cbind(acc_ml, acc_dy, acc_br)
-auc_all = cbind(auc_ml, auc_dy, auc_br)
-sens_all = cbind(sens_ml, sens_dy, sens_br)
-spec_all = cbind(spec_ml, spec_dy, spec_br)
-
-acc_mean = apply(acc_all,2,mean)*100
-acc_sd = apply(acc_all,2,sd)*100
-
-auc_mean = apply(auc_all,2,mean)*100
-auc_sd = apply(auc_all,2,sd)*100
-
-spec_mean = apply(spec_all,2,mean)*100
-spec_sd = apply(spec_all,2,sd)*100
-
-sens_mean = apply(sens_all,2,mean)*100
-sens_sd =apply(sens_all,2,sd)*100
-
-# create table
-fm = function(m,s) sprintf("%.2f (%.2f)",m,s)
-
-res = data.frame(cbind(fm(apply(acc_all,2,mean)*100, apply(acc_all,2,sd)*100),
-fm(apply(spec_all,2,mean)*100, apply(spec_all,2,sd)*100),
-fm(apply(sens_all,2,mean)*100, apply(sens_all,2,sd)*100),
-fm(apply(auc_all,2,mean)*100, apply(auc_all,2,sd)*100)))
-
-colnames(res) = c("Accuracy",  "Specificity", "Sensitivity", "AUC")
-rownames(res) = c("MLE", "DY", "@Firth1993")
-kable(res,type = "markdown")
-```
-
-<table>
-<thead>
-<tr>
-<th style="text-align:left;">
-</th>
-<th style="text-align:left;">
-Accuracy
-</th>
-<th style="text-align:left;">
-Specificity
-</th>
-<th style="text-align:left;">
-Sensitivity
-</th>
-<th style="text-align:left;">
-AUC
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-MLE
-</td>
-<td style="text-align:left;">
-75.52 (1.37)
-</td>
-<td style="text-align:left;">
-75.62 (1.84)
-</td>
-<td style="text-align:left;">
-75.43 (1.88)
-</td>
-<td style="text-align:left;">
-83.56 (1.27)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-DY
-</td>
-<td style="text-align:left;">
-75.49 (1.36)
-</td>
-<td style="text-align:left;">
-75.62 (1.83)
-</td>
-<td style="text-align:left;">
-75.36 (1.87)
-</td>
-<td style="text-align:left;">
-83.53 (1.26)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Firth (1993)
-</td>
-<td style="text-align:left;">
-75.52 (1.37)
-</td>
-<td style="text-align:left;">
-75.62 (1.84)
-</td>
-<td style="text-align:left;">
-75.43 (1.87)
-</td>
-<td style="text-align:left;">
-83.56 (1.27)
-</td>
-</tr>
-</tbody>
-</table>
-
-``` r
-#xtable::xtable(res)
-```
+|              | Accuracy     | Specificity  | Sensitivity  | AUC          |
+|:-------------|:-------------|:-------------|:-------------|:-------------|
+| MLE          | 75.52 (1.37) | 75.62 (1.84) | 75.43 (1.88) | 83.56 (1.27) |
+| DY           | 75.49 (1.36) | 75.62 (1.83) | 75.36 (1.87) | 83.53 (1.26) |
+| Firth (1993) | 75.52 (1.37) | 75.62 (1.84) | 75.43 (1.87) | 83.56 (1.27) |
 
 # References
 

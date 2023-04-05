@@ -182,7 +182,8 @@ pl = ggplot(df) +
 
 ### Predictive accuracy
 Lastly, we evaluate the predictive performance of the three apporaches in terms of accuracy, sensitivity and sensibility (using the value $0.5$ as a threshold) and in terms of Area Under the Roc curve (AUC).
-```{r}
+
+```{r, echo = F}
 # load results
 load("full_sim.RData")
 pr_ml = plogis(tcrossprod(X, ml))
