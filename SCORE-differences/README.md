@@ -6,11 +6,11 @@ available in the file*
 [endometrial.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/ENDOMETRIAL/endometrial.Rmd))
 
 The endometrial cancer study is illustrated in Heinze and Schemper
-(2002), and focuses on $n = 79$ patients to evaluate the relationship
+(2002), and focuses on *n* = 79 patients to evaluate the relationship
 between the histology of the endometrium (low against high), and three
 risk factors: neovasculation, pulsatility index of arteria uterina, and
 endometrium height. As shown in Heinze and Schemper (2002), maximum
-likelihood for the coefficient $\beta_2$ (neovasculation) does not
+likelihood for the coefficient *β*<sub>2</sub> (neovasculation) does not
 exist.
 
 ``` r

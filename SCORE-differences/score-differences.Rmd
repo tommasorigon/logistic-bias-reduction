@@ -1,0 +1,134 @@
+---
+title: "Endometrial cancer study"
+author: "Tommaso Rigon and Emanuele Aliverti"
+bibliography: ["../biblio.bib"]
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Endometrial cancer study
+
+*(This tutorial illustrates main results of the analysis in an easy-to-read format.
+Complete code associated with this page is available in the file* 
+[endometrial.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/ENDOMETRIAL/endometrial.Rmd))
+
+The endometrial cancer study is illustrated in @Heinze2002, and focuses on $n = 79$ patients 
+to evaluate the relationship between the histology of the endometrium (low against high), 
+and three risk factors: neovasculation, pulsatility index of arteria uterina, and endometrium height. 
+As shown in @Heinze2002, maximum likelihood for the coefficient $\beta_2$ (neovasculation) does not exist.
+
+```{r endometrial,echo=F}
+rm(list = ls())
+library(knitr)
+library(jtools)
+library(brglm2)
+library(enrichwith)
+data(endometrial)
+```
+
+
+# Variabili scalate in 0/1
+
+
+```{r data}
+y <- endometrial$HG
+X <- model.matrix(HG ~ NV + PI + EH, data = endometrial)
+X[,3] = (X[,3] - min(X[,3]))/  (max(X[,3]) - min(X[,3]))
+X[,4] = (X[,4] - min(X[,4]))/  (max(X[,4]) - min(X[,4]))
+p <- ncol(X)
+m <- nrow(X)
+endometrial$HG_DY <- p / (p + m) * 0.5 + m / (p + m) * endometrial$HG
+endometrial$PIs = X[,3]
+endometrial$EHs = X[,4]
+```
+
+```{r dy,warning=FALSE}
+fit_glm =  glm(HG ~ NV + PIs + EHs, family = binomial("logit"), data = endometrial)
+fit_dy <- glm(HG_DY ~ NV + PIs + EHs, family = binomial("logit"), data = endometrial)
+fit_firth <- glm(HG ~NV + PIs + EHs, family = binomial("logit"), method = "brglmFit", type = "AS_mean", data = endometrial)
+
+score_glm = function(beta,X = model.matrix(fit_glm), y = fit_glm$y){
+   pr = c(plogis(tcrossprod(beta,X)))
+   colSums((y-pr)*X)
+}
+score_dy = function(beta,X = model.matrix(fit_dy), y = fit_dy$y) {
+  score_glm(beta,X,y)
+}
+
+# crea correzione firth a partire dal glm
+score_firth = function(beta, X = model.matrix(fit_glm),y =fit_glm$y) {
+ # build probabilities 
+  pr = c(plogis(tcrossprod(beta,X)))
+  ppr = pr * (1-pr)
+ # build leverages 
+  M = solve(crossprod(X*ppr, X))
+  S = X*sqrt(ppr)
+  W = S %*% M %*% t(S)
+  h = diag(W)
+  
+  bias = h*(pr-0.5)*X
+  score_glm(beta, X,y) - colSums(bias)
+  
+}
+
+score_glm(coef(fit_glm))
+score_firth(coef(fit_firth))
+score_dy(coef(fit_dy))
+```
+
+```{r, plot}
+# get a plausible range of values
+par_ranges = apply(confint(fit_firth, level = 0.5), 1, function(x) seq(x[1], x[2], l = 50))
+
+sc_fi = t(apply(par_ranges, 1, function(x) score_firth(x)))
+sc_dy = t(apply(par_ranges, 1, function(x) score_dy(x)))
+sc_ml = t(apply(par_ranges, 1, function(x) score_glm(x)))
+
+
+plot(par_ranges[,1] , apply(par_ranges, 1, function(x) score_dy(beta = x))[1,])
+
+j=1
+{
+  plot(par_ranges[,j], score_firth(par_ranges[,j]), type = "l");
+  lines(par_ranges[,j], score_dy(par_ranges[,j]), type = "l", col = 2);
+  lines(par_ranges[,j], sc_ml[,j], type = "l", col = 3);
+abline(h = 0, lty = 3)
+}
+
+
+
+
+apply(abs(sc_fi - sc_dy),2, max)
+
+tmp = reshape2::melt(par_ranges)
+tmp$FI = reshape2::melt(sc_fi)$value
+tmp$DY = reshape2::melt(sc_dy)$value
+tmp$ml = reshape2::melt(sc_ml)$value
+tmp
+## MLE (add lines)
+estimates = lapply(list(DY=fit_dy,FI=fit_firth,ML=fit_glm), function(x) data.frame(t(coef(x))))
+est_plot = reshape2::melt(estimates)
+est_plot$variable = factor(est_plot$variable, labels = levels(tmp$Var2))
+est_plot$Var2 = est_plot$variable
+# rimuovi MLE infinito
+est_plot$value[est_plot$value > 10] = NA
+
+require(ggplot2)
+p0 = ggplot(tmp) + 
+  geom_line(aes(x = value, y = FI), color = "green") +
+  geom_line(aes(x = value, y = DY), color = "red") +
+  geom_line(aes(x = value, y = ml), color = "blue") +
+ # geom_vline(data = est_plot, aes(xintercept = value, color = L1), lty = 2)+
+  facet_wrap(~Var2, scales = "free") +
+  geom_hline(yintercept = 0, lty = 3)+
+  theme_minimal()
+  # plot the score functions
+p0
+ggsave(p0, file = "/tmp/pl2.png")
+```
+
+
+

@@ -1,5 +1,5 @@
 ---
-title: "high-dimensional synthetic example"
+title: "Synthetic example - part 2"
 author: "Tommaso Rigon and Emanuele Aliverti"
 output: html_document
 bibliography: ["../biblio.bib"]
@@ -13,28 +13,14 @@ library(knitr)
 library(ggplot2)
 ```
 
-*(This tutorial illustrates main results of the analysis in an
-easy-to-read format. Complete code associated with this page is
-available in the file*
-[simulation-studies.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/simulation-studies.Rmd)),
+# Simulation studies, part 2
+This simulation setting emulates [simulation-studies.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/simulation-studies.Rmd)), but focuses on a larger $p/n$ ratio, close to 1.
 
-# Simulation studies
-
-The purpose of this study is to investigate the behavior of the proposed
-estimator in high dimensional and computationally challenging scenarios,
-and compare its performance with standard maximum likelihood and
-@Firth1993.
-
-We focus on an example inspired by the Appendix D of @Sur2019 and the
-Supplementary Materials of @Kosmidis2021, focusing on a setting with
-$n=1000$ observations from a logistic regression model with $p=200$, and
-coefficients divided in $5$ blocks of $40$ coefficients with values set
-as `r c(3,1.5,0, -1.5,-3)`.
 
 ```{r,echo=T}
 set.seed(1991)
-n <- 1000
-p <- 200
+n <- 300
+p <- 100
 b0 = c(3,1.5,0, -1.5,-3)
 beta = rep(b0,each = p/5)
 X <- matrix(rnorm(n * (p), 0, sqrt(1 / n)), n, p)
@@ -42,91 +28,15 @@ y <- rbinom(n, 1, plogis(X %*% beta))
 fit_mle <- glm(y ~ X - 1, family = binomial("logit"))
 ```
 
-Recalling that penalized likelihood optimization under the proposed
-Diaconis-Ylvisaker conjugate prior induces a binomial likelihood with
-pseudo-counts, we can rely on different available optimization methods
-for logistic regression models. We found that quasi-Newton methods have
-better numerical performance; refer to @Nocedal2006 for additional
-details. A practical implementation for logistic regression optimization
-via L-BFGS is provided in the function `fastLR` available in the package
-`RcppNumerical`. We compare estimates and elapsed time for a single
-estimation. Analysis are conducted on a 2020 Macbook Pro with M1
-processor (`aarch64-apple-darwin20`) running R 4.1.1 linked with
-`openblas`. For more details on computational performance refer to the
-file
-[`compare_timing.r`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/compare_timing.r),
-where we compare the elapsed timing [with and without classical BLAS
-libraries](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/compare_timing.r#L25-L47)
-via `microbenchmark`, and show the limits of Firth's correction in a
-[large
-settings](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/compare_timing.r#L50-L69)
-with correlated design matrix.
-
-```{r run,echo=T,warning=F, eval=T}
-library(brglm2)
-m <- nrow(X)
-y_dy <- p / (p + m) * 0.5 + m / (p + m) * y
-
-
-library(RcppNumerical)
-t0 <- Sys.time()
-
-# DY ESTIMATE
-fit_fast_dy <- fastLR(X, y_dy)
-t1 <- Sys.time()
-elapsed_fast_dy <- t1 - t0
-
-# FIRTH (1993)
-t0 <- Sys.time()
-fit_firth <- brglm_fit(X,y,
-  family = binomial("logit"),
-  control = list(type = "AS_mean")
-)
-t1 <- Sys.time()
-elapsed_firth <- t1 - t0
-```
-
-The following table and figure compare elapsed time and point estimates,
-respectively, for a single replication.
-
-```{r print-r,echo=F,eval=T}
-tt = data.frame("timing" = c( elapsed_fast_dy, elapsed_firth))
-rownames(tt) = c("DY - fast implementation", "@Firth1993")
-kable(tt,digits = 3,format = "markdown")
-```
-
-```{r, echo=F,warning=F,fig.height=3,fig.width=12,fig.align='center'}
-cc = list("MLE" = coef(fit_mle), "Firth" = coef(fit_firth), 
-          "DY" = fit_fast_dy$coefficients)
-df_list = reshape2::melt(cc)
-df_list$x=rep(1:p, length(cc))
-df_list$b0 = rep(beta,length(cc))
-
-df_list$L1 = ordered(factor(df_list$L1,levels = c("MLE", "DY", "Clogg", "Firth"), labels = 
-         c("Maximum-Likelihood","Diaconis-Ylvisaker",  "Clogg (1991)", "Firth (1993)")))
-
-
-df_seg = data.frame(matrix(c(0,40,41,80,81,120,121,160,161,200),ncol=2,byrow = T),y=unique(beta))
-
-pl = ggplot(df_list) + 
-  geom_point(aes(x,value), color = "gray50") + 
-  geom_segment(data=df_seg, aes(x= X1, xend = X2, y = y, yend=y),size = 1.4, color = "black")+
-  geom_vline(xintercept = seq(40,160,by=40), lty = 3)+
-  facet_wrap(~L1,nrow = 1) + 
-  theme_bw() + xlab("") + ylab("Estimated coefficients")
-ggsave(pl, file = "figs/coef.png", width = 12,height = 3)
-include_graphics("figs/coef.png")
-```
-
 We evaluate the frequentist properties of different estimators in terms of
 bias and RMSE, across 5000 replications of this scenario. Results are
-stored in the file `sur-candes.RData` and can be reproduced running the
+stored in the file `sur-candes-2.RData` and can be reproduced running the
 script
-[`sur-candes.R`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/sur-candes.R)
-(takes approximately 4 hours).
+[`sur-candes-p2.R`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/sur-candes-p2.R)
 
 ```{r, echo=F,warning=F,message=FALSE,fig.height=3,fig.width=12,fig.align='center'}
-load("sur-candes.RData")
+rm(list = ls())
+load("full_sim-p2.RData")
 rmse.beta = sqrt(mse.beta)
 bias.beta$x = 1:NROW(bias.beta)
 rmse.beta$x = 1:NROW(rmse.beta)
@@ -136,7 +46,7 @@ df = subset(df, variable != "clogg")
 df$variable = factor(df$variable, levels = c("ml", "dy",  "br"),
                      labels= c("Maximum\nlikelihood", "Diaconis\nYlvisaker",  "Firth (1993)"),ord=T)
 
-df$xl = cut(df$x,breaks = seq(0,p,by=40), labels = paste0("beta==",c('3','3/2','0','-3/2','-3')))
+df$xl = cut(df$x,breaks = seq(0,p,by=p/5), labels = paste0("beta==",c('3','3/2','0','-3/2','-3')))
 line_df = subset(df, L1 == "Bias")
 line_df = do.call(rbind,by(line_df,line_df$xl, head,1))
 line_df$value = 0
@@ -153,8 +63,8 @@ pl = ggplot(df) +
         axis.text.x = element_text(angle = 60,hjust = 1,vjust = 1),
         strip.text = element_text(size=12)
         )
-ggsave(pl, file = "figs/boxpl-1.png",  width = 11,height = 5)
-include_graphics("figs/boxpl-1.png")
+ggsave(pl, file = "figs/boxpl-2.png",  width = 11,height = 5)
+include_graphics("figs/boxpl-2.png")
 ```
 
 ```{r paper-fig,eval=F,echo=F}
@@ -176,7 +86,7 @@ pl = ggplot(df) +
 #         axis.text.x = element_text(angle = 60,hjust = 1,vjust = 1),
 #         strip.text = element_text(size=16)
 #         ) 
-#2 ggsave(pl, file = "figs/boxplot.pdf",  width = 11,height = 5)
+ggsave(pl, file = "figs/boxplot-supp.pdf",  width = 11,height = 5)
 # ggsave(pl, file = "figs/boxplot.eps",  width = 11,height = 5)
 ```
 
@@ -184,7 +94,7 @@ pl = ggplot(df) +
 Lastly, we evaluate the predictive performance of the three apporaches in terms of accuracy, sensitivity and sensibility (using the value $0.5$ as a threshold) and in terms of Area Under the Roc curve (AUC).
 ```{r}
 # load results
-load("full_sim.RData")
+load("full_sim-p2.RData")
 pr_ml = plogis(tcrossprod(X, ml))
 pr_dy = plogis(tcrossprod(X, dy))
 pr_br = plogis(tcrossprod(X, br))
@@ -234,11 +144,11 @@ sens_sd =apply(sens_all,2,sd)*100
 fm = function(m,s) sprintf("%.2f (%.2f)",m,s)
 
 res = data.frame(cbind(fm(apply(acc_all,2,mean)*100, apply(acc_all,2,sd)*100),
+fm(apply(auc_all,2,mean)*100, apply(auc_all,2,sd)*100),
 fm(apply(spec_all,2,mean)*100, apply(spec_all,2,sd)*100),
-fm(apply(sens_all,2,mean)*100, apply(sens_all,2,sd)*100),
-fm(apply(auc_all,2,mean)*100, apply(auc_all,2,sd)*100)))
+fm(apply(sens_all,2,mean)*100, apply(sens_all,2,sd)*100)))
 
-colnames(res) = c("Accuracy",  "Specificity", "Sensitivity", "AUC")
+colnames(res) = c("Accuracy", "AUC", "Specificity", "Sensitivity")
 rownames(res) = c("MLE", "DY", "@Firth1993")
 kable(res,type = "markdown")
 #xtable::xtable(res)

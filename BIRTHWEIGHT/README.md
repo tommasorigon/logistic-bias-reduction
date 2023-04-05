@@ -7,7 +7,7 @@ available in the file*
 
 This tutorial is devoted to reproduce simulations from Kosmidis, Kenne
 Pagui, and Sartori (2020), available in Table 1 of the article. Data
-comprises *n* = 100 births and the binary outcome of interest is a
+comprises $n = 100$ births and the binary outcome of interest is a
 dichotomization of infant birthweight (low against normal).
 
 ``` r
@@ -78,11 +78,11 @@ Values in brackets correspond to the standard errors.
 |                                         | (5.72) | (0.05) | (0.56) | (0.57) | (0.68) | (0.91) | (1.23) |
 
 We assess the properties of different approaches relying on a simulation
-study. Specifically, 10000 artificial datasets are generated from the
+study. Specifically, $10000$ artificial datasets are generated from the
 maximum-likelihood estimates. The approaches illustrated on Table 1 are
 estimated for each replications, and we evaluate their performance in
 terms of bias and root mean squared error. Note that the simulation
-requires roughly 3 minutes on a 2020 Macbook Pro with M1 processor
+requires roughly $3$ minutes on a 2020 Macbook Pro with M1 processor
 (`aarch64-apple-darwin20`) running R 4.1.1 linked with `openblas`.
 Absolute computational time might be different on other architectures.
 
