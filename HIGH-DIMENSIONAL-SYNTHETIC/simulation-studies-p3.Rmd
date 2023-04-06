@@ -20,7 +20,7 @@ This simulation setting emulates [simulation-studies.Rmd](https://github.com/tom
 
 ```{r,echo=T}
 set.seed(1991)
-n <- 100
+n <- 500
 p <- 10
 b0 <- c(3, 1.5, 0, -1.5, -3)
 beta <- c(3, rep(b0, each = p / 5))
@@ -50,7 +50,7 @@ df$variable <- factor(df$variable,
   labels = c("Maximum\nlikelihood", "Diaconis\nYlvisaker", "Firth (1993)"), ord = T
 )
 
-df$xl <- cut(df$x, breaks = seq(0, p, by = p / 5), labels = paste0("beta==", c("3", "3/2", "0", "-3/2", "-3")))
+df$xl <- cut(df$x, breaks = c(0, seq(1, p, by = (p - 1) / 5)), labels = paste0("beta==", c("Int.","3", "3/2", "0", "-3/2", "-3")))
 line_df <- subset(df, L1 == "Bias")
 line_df <- do.call(rbind, by(line_df, line_df$xl, head, 1))
 line_df$value <- 0
@@ -104,7 +104,7 @@ ggsave(pl, file = "figs/boxplot-supp.pdf", width = 11, height = 5)
 Lastly, we evaluate the predictive performance of the three apporaches in terms of accuracy, sensitivity and sensibility (using the value $0.5$ as a threshold) and in terms of Area Under the Roc curve (AUC).
 ```{r}
 # load results
-load("full_sim-p2.RData")
+load("full_sim-p3.RData")
 pr_ml <- plogis(tcrossprod(X, ml))
 pr_dy <- plogis(tcrossprod(X, dy))
 pr_br <- plogis(tcrossprod(X, br))

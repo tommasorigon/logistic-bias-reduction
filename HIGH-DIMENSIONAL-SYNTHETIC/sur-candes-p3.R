@@ -1,11 +1,12 @@
 rm(list = ls())
 set.seed(1991)
-n <- 100
-p <- 20
+n <- 500
+p <- 10
 b0 <- c(3, 1.5, 0, -1.5, -3)
-beta <- c(10, rep(b0, each = p / 5))
+beta <- c(3, rep(b0, each = p / 5))
 X <- cbind(1, matrix(rnorm(n * (p), 0, sqrt(1 / n)), n, p))
 p <- ncol(X)
+
 y <- rbinom(n, 1, plogis(X %*% beta))
 m0 <- glm(y ~ X - 1, family = binomial("logit"))
 Nsim <- 5e3
@@ -99,5 +100,5 @@ beta_res <- c("mse.beta", "bias.beta", "mae.beta")
 or_res <- c("mse.or", "bias.or", "mae.or")
 
 
-save(list = c(beta_res, or_res), file = "sur-candes.RData")
-save.image(file = "full_sim.RData")
+save(list = c(beta_res, or_res), file = "sur-candes-3.RData")
+save.image(file = "full_sim-p3.RData")
