@@ -15,29 +15,30 @@ library(ggplot2)
 
 # Simulation studies, part 2
 
-This simulation setting emulates [simulation-studies.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/simulation-studies.Rmd)), but focuses on a larger $p/n$ ratio, close to 1.
+This simulation setting emulates [simulation-studies.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/simulation-studies.Rmd)), but focuses on unbalanced settings.
 
 
 ```{r,echo=T}
 set.seed(1991)
-n <- 300
-p <- 100
+n <- 100
+p <- 10
 b0 <- c(3, 1.5, 0, -1.5, -3)
-beta <- rep(b0, each = p / 5)
-X <- matrix(rnorm(n * (p), 0, sqrt(1 / n)), n, p)
+beta <- c(3, rep(b0, each = p / 5))
+X <- cbind(1, matrix(rnorm(n * (p), 0, sqrt(1 / n)), n, p))
+p <- ncol(X)
 y <- rbinom(n, 1, plogis(X %*% beta))
 fit_mle <- glm(y ~ X - 1, family = binomial("logit"))
 ```
 
 We evaluate the frequentist properties of different estimators in terms of
 bias and RMSE, across 5000 replications of this scenario. Results are
-stored in the file `sur-candes-2.RData` and can be reproduced running the
+stored in the file `sur-candes-3.RData` and can be reproduced running the
 script
 [`sur-candes-p2.R`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/sur-candes-p2.R)
 
 ```{r, echo=F,warning=F,message=FALSE,fig.height=3,fig.width=12,fig.align='center'}
 rm(list = ls())
-load("full_sim-p2.RData")
+load("full_sim-p3.RData")
 rmse.beta <- sqrt(mse.beta)
 bias.beta$x <- 1:NROW(bias.beta)
 rmse.beta$x <- 1:NROW(rmse.beta)
@@ -69,8 +70,8 @@ pl <- ggplot(df) +
     axis.text.x = element_text(angle = 60, hjust = 1, vjust = 1),
     strip.text = element_text(size = 12)
   )
-ggsave(pl, file = "figs/boxpl-2.png", width = 11, height = 5)
-include_graphics("figs/boxpl-2.png")
+ggsave(pl, file = "figs/boxpl-3.png", width = 11, height = 5)
+include_graphics("figs/boxpl-3.png")
 ```
 
 ```{r paper-fig,eval=F,echo=F}
