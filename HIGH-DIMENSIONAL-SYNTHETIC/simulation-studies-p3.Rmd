@@ -15,25 +15,26 @@ library(ggplot2)
 
 # Simulation studies, part 2
 
-This simulation setting emulates [simulation-studies.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/simulation-studies.Rmd)), but focuses on unbalanced settings.
-
+This simulation setting emulates
+[simulation-studies.Rmd](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/simulation-studies.Rmd)),
+but focuses on unbalanced settings.
 
 ```{r,echo=T}
 set.seed(1991)
-n <- 500
+n <- 100
 p <- 10
 b0 <- c(3, 1.5, 0, -1.5, -3)
-beta <- c(3, rep(b0, each = p / 5))
+beta <- c(1, rep(b0, each = p / 5))
 X <- cbind(1, matrix(rnorm(n * (p), 0, sqrt(1 / n)), n, p))
 p <- ncol(X)
 y <- rbinom(n, 1, plogis(X %*% beta))
 fit_mle <- glm(y ~ X - 1, family = binomial("logit"))
 ```
 
-We evaluate the frequentist properties of different estimators in terms of
-bias and RMSE, across 5000 replications of this scenario. Results are
-stored in the file `sur-candes-3.RData` and can be reproduced running the
-script
+We evaluate the frequentist properties of different estimators in terms
+of bias and RMSE, across 5000 replications of this scenario. Results are
+stored in the file `sur-candes-3.RData` and can be reproduced running
+the script
 [`sur-candes-p2.R`](https://github.com/tommasorigon/logistic-bias-reduction/blob/main/HIGH-DIMENSIONAL-SYNTHETIC/sur-candes-p2.R)
 
 ```{r, echo=F,warning=F,message=FALSE,fig.height=3,fig.width=12,fig.align='center'}
@@ -50,7 +51,7 @@ df$variable <- factor(df$variable,
   labels = c("Maximum\nlikelihood", "Diaconis\nYlvisaker", "Firth (1993)"), ord = T
 )
 
-df$xl <- cut(df$x, breaks = c(0, seq(1, p, by = (p - 1) / 5)), labels = paste0("beta==", c("Int.","3", "3/2", "0", "-3/2", "-3")))
+df$xl <- cut(df$x, breaks = c(0, seq(1, p, by = (p - 1) / 5)), labels = c("Intercept", paste0("beta==", c("3", "3/2", "0", "-3/2", "-3"))))
 line_df <- subset(df, L1 == "Bias")
 line_df <- do.call(rbind, by(line_df, line_df$xl, head, 1))
 line_df$value <- 0
@@ -101,7 +102,11 @@ ggsave(pl, file = "figs/boxplot-supp.pdf", width = 11, height = 5)
 ```
 
 ### Predictive accuracy
-Lastly, we evaluate the predictive performance of the three apporaches in terms of accuracy, sensitivity and sensibility (using the value $0.5$ as a threshold) and in terms of Area Under the Roc curve (AUC).
+
+Lastly, we evaluate the predictive performance of the three apporaches
+in terms of accuracy, sensitivity and sensibility (using the value $0.5$
+as a threshold) and in terms of Area Under the Roc curve (AUC).
+
 ```{r}
 # load results
 load("full_sim-p3.RData")

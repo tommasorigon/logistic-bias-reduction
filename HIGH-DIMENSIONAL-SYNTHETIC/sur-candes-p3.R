@@ -1,9 +1,9 @@
 rm(list = ls())
 set.seed(1991)
-n <- 500
+n <- 100
 p <- 10
 b0 <- c(3, 1.5, 0, -1.5, -3)
-beta <- c(3, rep(b0, each = p / 5))
+beta <- c(1, rep(b0, each = p / 5))
 X <- cbind(1, matrix(rnorm(n * (p), 0, sqrt(1 / n)), n, p))
 p <- ncol(X)
 
