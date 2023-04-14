@@ -14,9 +14,10 @@ library(microbenchmark)
 library(RcppNumerical)
 library(brglm2)
 microbenchmark("DY" = fastLR(X, y_dy),
+               "ML" = fastLR(X, y),
                "FIRTH" =  glm(y ~ -1 + X,
                               family = binomial("logit"),
-                              method = "brglmFit", type = "AS_mean"),unit = "ms")
+                              method = "brglmFit", type = "AS_mean"), unit = "ms")
 sessionInfo()
 
 
