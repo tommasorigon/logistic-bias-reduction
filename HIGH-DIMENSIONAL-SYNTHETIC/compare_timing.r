@@ -13,39 +13,24 @@ y_dy = p / (p + m) * 0.5 + m / (p + m) * y
 library(microbenchmark)
 library(RcppNumerical)
 library(brglm2)
-microbenchmark("DY" = fastLR(X, y_dy),
+times1 <- microbenchmark("DY" = fastLR(X, y_dy),
                "ML" = fastLR(X, y),
-               "FIRTH" =  glm(y ~ -1 + X,
-                              family = binomial("logit"),
-                              method = "brglmFit", type = "AS_mean"), unit = "ms")
+               "DY_glm" = glm(y_dy ~ -1 + X, family = binomial("logit")),
+               "ML_glm" = glm(y ~ -1 + X, family = binomial("logit")),
+               "FIRTH" =  glm(y ~ -1 + X, family = binomial("logit"),  method = "brglmFit", type = "AS_mean"),
+               unit = "ms")
+
+times1
+
+#Unit: milliseconds
+#expr         min          lq        mean      median          uq         max neval
+#DY    1.417825    1.536040    1.657501    1.618864    1.734205    2.675760   100
+#ML    1.515803    1.637326    1.746349    1.702804    1.828086    2.472775   100
+#DY_glm  111.607941  119.617553  126.308349  123.216071  127.418655  259.807011   100
+#ML_glm  138.646314  145.807803  150.875042  149.376876  153.386644  233.923078   100
+#FIRTH 1045.248981 1085.919382 1168.210768 1183.048705 1204.458069 1479.942433   100
+
 sessionInfo()
-
-
-
-
-# M1 - openblas
-# R version 4.1.1 (2021-08-10)
-# Platform: aarch64-apple-darwin20 (64-bit)
-# Running under: macOS Big Sur 11.6.2
-#
-# Matrix products: default
-# BLAS:   /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRblas.openblas.dylib
-# LAPACK: /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRlapack.dylib
-# Unit: milliseconds
-# expr        min         lq       mean     median         uq  max neval cld
-# DY   1.132666   1.144433   1.191476   1.203145   1.221595  1.3735   100  a
-# FIRTH 522.520892 531.041860 574.314200 536.368150 576.228985 877.7474   100   b
-
-
-# M1 - standard BLAS library
-# R version 4.1.1 (2021-08-10)
-# Platform: aarch64-apple-darwin20 (64-bit)
-# Running under: macOS Big Sur 11.6.2
-# Unit: milliseconds
-# expr         min          lq        mean      median         uq         max neval cld
-# DY    1.135413    1.148615    1.208988    1.209213    1.22346    2.757537    100  a
-# FIRTH 1033.778879 1052.329616 1080.138944 1083.305444 1096.14328 1199.019047    100   b
-
 
 
 ## Consider a settings with correlated covariates. Firth takes more than 2 hours
